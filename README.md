@@ -10,7 +10,7 @@ Dashboard app using node red as service engine and webasset to be used with NGIN
     * `npm install`
     * This should install node-red and required packages
     * Open `settings.js` file at path node `node_modules\node-red`
-    * File `httpStatic` and uncomment the line
+    * Find `httpStatic` and uncomment the line
     * Put the value for `httpStatic` as `webcontent`
          * httpStatic: 'webcontent',    
 * To start node-red execute `npm start`
