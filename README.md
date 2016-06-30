@@ -25,7 +25,7 @@ Dashboard app using node red as service engine and webasset to be used with NGIN
 * Now open http://localhost/dashboard/test
 
 
-#### Working with Node JS
+#### Working with Node Red
 * All the flows will be created on http://localhost
 * Commiting Flows
       * Once the flow is created on local. Select all the nodes and goto Top right corner and click on three lines
