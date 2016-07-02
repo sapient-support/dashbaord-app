@@ -14,4 +14,4 @@ RUN apk update \
 RUN cd /src; npm install
 
 EXPOSE 80
-CMD [ "npm", "start" ]
+CMD [ "npm start" ]
