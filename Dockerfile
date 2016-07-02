@@ -1,7 +1,8 @@
 FROM alpine:3.4
 
 # Bundle app source
-COPY . /src
+COPY package.json /src/
+COPY webcontent /src/webcontent
 
 # Update
 RUN apk update \
