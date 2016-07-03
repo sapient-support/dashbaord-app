@@ -5,13 +5,11 @@ COPY package.json /src/
 COPY webcontent /src/webcontent
 
 # Update
-RUN apk update \
-	&& apk add nodejs \
-	&& cd /src \
-	&& npm install
-	
-# Install app dependencies
-RUN cd /src; npm install
+RUN apk update
+RUN apk add nodejs
+WORKDIR /src
+RUN npm install
+
 
 EXPOSE 80
-CMD [ "npm start" ]
+CMD [ "npm","start" ]
