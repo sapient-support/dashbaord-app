@@ -6,6 +6,7 @@ Dashboard app using node red as service engine and webasset to be used with NGIN
 #### Install Node JS (recomended version 4+) https://nodejs.org/en/
 #### Setup Node-Red
 * Take checkout
+* Set GIT url config for windows `git config --global url."git@github.com:".insteadOf "git://github.com/"`
 * Execute install
     * `npm install`
     * This should install node-red and required packages
