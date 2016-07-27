@@ -1,0 +1,97 @@
+body {
+    background-color:#1a1a1a;
+    color:#ffffff;
+    text-align:center;
+    font-family: monospace,sans-serif;
+    font-size:2.5rem;
+}
+h1 {
+    margin-top:0;
+    margin-bottom: 70px;
+    color: #d9d9d9;
+    font-size: 1.5em;
+    border-radius: .25rem;
+    padding: 1rem;
+    background-color: #333333;
+}
+a:hover{
+    text-decoration: none;
+}
+.status-box{
+    border:solid 2px #999999;
+    border-radius:3px;
+    box-shadow: 0px 0px 12px #fff;
+    margin-bottom: 1em;
+}
+.status-box h2{
+    font-size: 1.25em;
+}
+.Red{
+    background-color:red;
+    color:#ffffff;
+}
+.Green{
+    background-color:#006600;
+    color:#ffffff;
+}
+
+.alert-table{
+    /*margin:0 12px;*/
+    table-layout: fixed;
+}
+
+.alert-table td{
+    font-size:15px;
+    height:30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.alert-table th{
+    height:30px;
+    text-align:center;
+    width:3%;
+}
+.alert-table tr{
+    height:40px;
+}
+
+.hasTooltip p {
+    display: none;
+    color: #000;
+    text-decoration: none;
+    padding: 3px;
+}
+.hasTooltip:hover{
+    cursor: default;
+}
+.hasTooltip:hover p {
+
+    display: block;
+    position: absolute;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    margin: 2px 10px;
+    white-space: normal;
+
+}
+
+.success{
+    background-color: #006600
+}
+.failed{
+    background-color: red;
+}
+
+@media only screen and (max-device-width: 768px){
+
+    .alert-table {
+        table-layout: auto;
+    }
+
+    .alert-table td {
+        white-space: normal;
+        overflow: auto;
+    }
+}
