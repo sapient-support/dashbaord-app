@@ -1,0 +1,246 @@
+header{
+    text-align: center;
+    margin: 2rem 0;
+}
+
+header h1,
+header p {
+    margin: 0;
+}
+
+table {
+  width: 100%;
+  border: .125rem solid gray;
+  border-collapse: collapse;
+  box-sizing: border-box;
+  text-align: left;
+  border-left-width: 5px;
+}
+
+table caption {
+  font-size: 2rem;
+  text-transform: uppercase;
+}
+
+tr{
+    border-top: 1px solid #222;
+}
+
+th, 
+td {
+  box-sizing: border-box;
+  overflow: hidden;
+  word-break: break-all;
+  border-left: 1px solid #222;
+  border-right: 1px solid #222;
+  min-width: 110px;
+  padding: 0;
+  position: relative;
+}
+
+th {
+  font-size: 1.125rem;
+  text-transform: capitalize;
+  padding:.5rem .25rem .5rem 1rem;
+}
+
+
+th:first-child,
+td:first-child{
+    border-left: none;
+    padding: .5rem .25rem .5rem 1rem;
+}
+
+th:last-child,
+td:last-child{ border-right: none; }
+
+table table{ border: none;}
+table table tr:first-child{border-top: none;}
+table table th {text-transform: none;}
+table table td {
+  padding:0 .25rem 0 1rem;
+}
+
+.small {
+  width: 8%;    
+}
+
+.medium{
+  width: 33%;
+}
+
+ul {
+  margin: 0;
+  padding: 0 1rem;
+  max-height: 320px;
+  overflow: auto;
+}
+
+li {
+  padding: .5rem 0;
+  margin: .25rem 0;
+}
+
+li:not(:last-child) {
+  border-bottom: .15rem dashed #999;
+}
+
+.no-content {
+    padding: .5rem 1rem;
+}
+
+/* accordian styles */
+.accordian__boss,
+.accordian__item th {
+    cursor: pointer;
+    padding-right: 2.5rem;
+}
+
+.accordian__item input[type=checkbox] {
+    margin-left: -10px;
+}
+
+
+.accordian__boss::after,
+.accordian__item th::after{
+    content: "-";
+    border: .25rem solid #eee;
+    background: #f5f5f5;
+    color: #222;
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 0.225rem .5rem;
+    box-sizing: border-box;
+}
+
+.accordian__item--collapsed th::after {
+    content: "+";
+}
+
+.accordian__boss::after {
+    content: "collapse all";
+}
+
+.accordian__boss--collapsed::after {
+    content: "expand all";
+}
+
+.accordian__item--collapsed > td:first-child{
+    position: relative;
+}
+
+/* .accordian__item--collapsed > td:first-child::after, */
+.total__count{
+    border: .15em solid blue;
+    background-color: skyblue;
+    border-radius: 5px;
+    font-size: .8rem;
+    padding: .15rem .25rem;
+    position: absolute;
+    right: 10px;
+    min-width: 35px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* .accordian__item--collapsed > td:first-child::after {
+    content: attr(data-occurence);
+} */
+
+.accordian__item--collapsed .accordian__info {
+    display:none;
+}
+
+.accordian__item label{
+    display:inline-block;
+    padding: .1rem .25rem;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    background-color: #fafafa;
+}
+
+.accordian__item label:hover{
+    background-color: #fefefe;
+    border: 2px solid #000;
+    cursor: pointer;
+}
+
+.accordian__item .input__checkbox{
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    visibility: hidden;
+}
+
+/* lightbox styles */
+.lightbox {
+    display: none;
+    background: rgba(0,0,0, .5);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    position: fixed;
+}
+
+.lightbox form {
+    box-sizing: border-box;
+    background: white;
+    max-width: 600px;
+    margin: 1rem auto 0 auto;
+    padding: 1rem;
+}
+
+.lightbox fieldset{
+    border: none;
+    padding: 0;
+    margin: .5rem 0;
+}
+
+.lightbox label{
+    margin-bottom: .5rem;
+    font-size: 1.25rem;
+    font-family: monospace;
+}
+
+.lightbox .input__textarea{
+    box-sizing: border-box;
+    display:block;
+    height: 250px;
+    width: 100%;
+    margin-bottom: .5rem;
+    font-size: 1.25rem;
+    font-family: monospace;
+}
+
+.lightbox .input__reset,
+.lightbox .input__submit{
+    box-sizing: border-box;
+    padding: .25rem .5rem;
+    border: 2px solid #000;
+    background: #fff;
+    color: #000;
+    font-size: 1.25rem;
+    font-family: monospace;
+    cursor: pointer;
+}
+
+.lightbox .input__submit:hover,
+.lightbox .input__reset:hover{
+    border-color: #ccc;
+    background: #000;
+    color: #fff;
+}
+
+/* Change status indicator */
+.result__item{
+    border-left: 5px solid gray;
+}
+
+.result__item--assesed {
+    border-left: 5px solid #060;
+    background: #e6ffda linear-gradient(#e6ffda 70px, #fff);
+}
