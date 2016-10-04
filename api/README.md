@@ -19,7 +19,7 @@ Dashboard app using node red as service engine and webasset to be used with NGIN
 
 ###### Import sample flow
 * After opening node-red application goto Top right corner and click on three lines
-* Click import --> Clipboard
+* Click import --> Clipboard 
 * A popup with `Import nodes` will open.
 * Open and copy the content of sample_flow.json in sample folder and paste in the popup.
 * Deploy the flow using deploy button
@@ -30,7 +30,7 @@ Dashboard app using node red as service engine and webasset to be used with NGIN
 * All the flows will be created on http://localhost
 * Commiting Flows
       * Once the flow is created on local. Select all the nodes and goto Top right corner and click on three lines
-      * Click export --> Clipboard
+      * Click export --> Clipboard 
       * A popup with `Export nodes to clipboard` will open.
       * Copy the content and save it as Json file inside `flow_templates` folder.
 * Commiting static assets
