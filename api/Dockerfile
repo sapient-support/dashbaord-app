@@ -12,5 +12,5 @@ RUN npm install
 COPY flow /src/flow
 COPY webcontent /src/webcontent
 
-EXPOSE 80
+EXPOSE 81
 CMD [ "npm","start" ]
