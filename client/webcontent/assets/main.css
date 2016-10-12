@@ -110,3 +110,38 @@ a:hover,a:focus{
     font-size: 0.6em;
 }
 div.ui-datepicker{ font-size:0.5em; }
+
+#dateButton {
+    border: solid 2px #337ab7;
+    padding: 5px;
+
+}
+#dateButton:hover {
+    text-decoration: none;
+    background-color: #337ab7;
+    color: white;
+}
+#hourlyBox:hover .status-box {
+    background-color: #48a529;
+    color:black;
+    font-weight: bold;
+}
+#hourlyBox:hover .status-box h2 {
+    font-weight: bold;
+}
+#dailyBox:hover .status-box {
+    background-color: #ef680e;
+    color:black;
+    font-weight: bold;
+}
+#dailyBox:hover .status-box h2 {
+    font-weight: bold;
+}
+#getData {
+    text-decoration: none;
+    background-color: #337ab7;
+    color: white;
+}
+.data-col {
+    margin-bottom: 15px;
+}
