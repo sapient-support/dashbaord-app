@@ -105,9 +105,24 @@ a:hover,a:focus{
         overflow: auto;
     }
 }
-
+.date-picker {
+    margin: 0 auto;
+    width: 75%;
+}
 .date-picker p {
     font-size: 0.6em;
+}
+.hasDatepicker {
+    width:76%;
+    background: url(/assets/images/calendar.png);
+    /* float: right; */
+    background-repeat: no-repeat;
+    background-position-x: right;
+}
+.date-picker span{
+    float:left;
+    /*margin-right: 20px;*/
+    width:25%;
 }
 div.ui-datepicker{ font-size:0.5em; }
 
@@ -141,7 +156,13 @@ div.ui-datepicker{ font-size:0.5em; }
     text-decoration: none;
     background-color: #337ab7;
     color: white;
+    float: left;
+    margin-top: 7px;
 }
 .data-col {
     margin-bottom: 15px;
+}
+.select-type {
+    padding: 3px;
+    width:71%;
 }
