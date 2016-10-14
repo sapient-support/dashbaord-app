@@ -1,1 +1,819 @@
-[{"id":"ec253f80.0c828","type":"tab","label":"Job Dashbaord"},{"id":"ca23f017.a3529","type":"tab","label":"Alert DashBoard"},{"id":"556c4c4b.054284","type":"tab","label":"JobStatus Dashboard"},{"id":"87759769.25c5a8","type":"tab","label":"Home Page"},{"id":"f359e7a3.637498","type":"mongodb","z":"ec253f80.0c828","hostname":"mongo","port":"27017","db":"node-red","name":"Mongo"},{"id":"fc8ab9ea.abc4b8","type":"http in","z":"ec253f80.0c828","name":"Request","url":"/dashboard/controlm-jobs","method":"get","swaggerDoc":"","x":108,"y":40,"wires":[["14dae9c3.2fa3f6"]]},{"id":"c495f8a8.8322c8","type":"mongodb in","z":"ec253f80.0c828","mongodb":"f359e7a3.637498","name":"Get Data","collection":"controlm-jobs","operation":"aggregate","x":309,"y":45,"wires":[["1befc500.4f886b"]]},{"id":"6490c6c8.71e308","type":"http response","z":"ec253f80.0c828","name":"Reponse","x":731,"y":49,"wires":[]},{"id":"1befc500.4f886b","type":"template","z":"ec253f80.0c828","name":"HTML","field":"payload","fieldType":"msg","format":"handlebars","syntax":"mustache","template":"<!DOCTYPE html>\n<html>\n<head>\n<title>Batch Job DashBoard</title>\n</head>\n<body>\n\n<h1>Batch Job DashBoard</h1>\n<table style=\"width:100%\">\n    <th>JOB_NAME</th>\n    <th>SERVER_NAME</th>\n    <th>START_TIME</th>\n    <th>END_TIME</th>\n    <th>STATUS</th>\n    <th>DESCRIPTION</th>\n    <th>JOB_GROUP</th>\n{{#payload}}\n  <tr>\n    <td>{{JOB_NAME}}</td>\n    <td>{{SERVER_NAME}}</td> \n    <td>{{START_TIME}}</td>\n\t<td>{{END_TIME}}</td>\n\t<td>{{STATUS}}</td>\n\t{{#LOOKUP}}\n\t<td>{{DESCRIPTION}}</td>\n\t<td>{{JOB_GROUP}}</td>\n\t{{/LOOKUP}}\n  </tr>\n  {{/payload}}\n</table>\n\n</body>\n</html>\n\n","x":500,"y":106,"wires":[["6490c6c8.71e308"]]},{"id":"14dae9c3.2fa3f6","type":"function","z":"ec253f80.0c828","name":"Set Fetch Properties","func":"var job_type=msg.payload.type;\nif(typeof job_type== \"undefined\"){\n    job_type=/.*.*/;\n}\nmsg.payload=[\n    {\n      $lookup:\n     {\n       from: \"controlm-job-lookup\",\n       localField: \"JOB_NAME\",\n       foreignField: \"JOB_NAME\",\n       as: \"LOOKUP\"\n     }\n   },\n   { $match: {\"LOOKUP.JOB_GROUP\" : job_type  } },\n   { $sort: { START_TIME: -1 }},\n    { $limit : 50 }\n];\nreturn msg;","outputs":1,"noerr":0,"x":271,"y":148,"wires":[["c495f8a8.8322c8"]]},{"id":"6851e03d.5994e","type":"http in","z":"ec253f80.0c828","name":"Request","url":"/dashboard/alerts","method":"get","swaggerDoc":"","x":101,"y":186,"wires":[["33f2dced.9b3cc4"]]},{"id":"d992a9ee.552d88","type":"mongodb in","z":"ec253f80.0c828","mongodb":"f359e7a3.637498","name":"Get Data","collection":"alert","operation":"find","x":302,"y":191,"wires":[["cf795a56.57ff58"]]},{"id":"ceb78fc1.48a67","type":"http response","z":"ec253f80.0c828","name":"Reponse","x":724,"y":195,"wires":[]},{"id":"cf795a56.57ff58","type":"template","z":"ec253f80.0c828","name":"HTML","field":"payload","fieldType":"msg","format":"handlebars","syntax":"mustache","template":"<!DOCTYPE html>\n<html>\n<head>\n<title>Alert DashBoard</title>\n</head>\n<body>\n\n<h1>Alert DashBoard</h1>\n<table style=\"width:100% ;border: 1px solid black;\">\n{{#payload}}\n  <tr>\n    <td style=\"border: 1px solid black;\">{{Asset}}</td>\n    <td style=\"border: 1px solid black;\">{{Severity}}</td> \n    <td style=\"border: 1px solid black;\">{{Mode}}</td>\n\t<td style=\"border: 1px solid black;\">{{Message}}</td>\n\t<td style=\"border: 1px solid black;\">{{AlertDate}}</td>\n\t<td style=\"border: 1px solid black;\">{{AlertKey}}</td>\n  </tr>\n  {{/payload}}\n</table>\n\n</body>\n</html>\n\n","x":493,"y":252,"wires":[["ceb78fc1.48a67"]]},{"id":"33f2dced.9b3cc4","type":"function","z":"ec253f80.0c828","name":"Set Fetch Properties","func":"msg.limit= 0;\nmsg.skip= 0;\nmsg.sort={ AlertDate: -1 };\nmsg.payload={Severity:\"major\"};\nreturn msg;","outputs":1,"noerr":0,"x":264,"y":294,"wires":[["d992a9ee.552d88"]]},{"id":"3b54eb7c.48ff44","type":"http request","z":"ca23f017.a3529","name":"getJobGroup","method":"GET","ret":"txt","url":"http://app:81/dashboard/job/lookup","tls":"","x":425,"y":153.23297119140625,"wires":[["184e27aa.a32df8"]]},{"id":"cef66459.faad18","type":"http in","z":"ca23f017.a3529","name":"AlertDashboard","url":"/AlertDashboard","method":"get","swaggerDoc":"","x":85,"y":50.28977966308594,"wires":[["f4f5efb.32ecc1","3b54eb7c.48ff44"]]},{"id":"f4f5efb.32ecc1","type":"http request","z":"ca23f017.a3529","name":"alertsJson","method":"GET","ret":"obj","url":"http://app:81/dashboard/alerts/api?severity=major","tls":"","x":420.9516906738281,"y":58,"wires":[["26d30c49.d69674"]]},{"id":"916e95a0.068558","type":"template","z":"ca23f017.a3529","name":"mainPage","field":"payload","fieldType":"msg","format":"html","syntax":"mustache","template":"<!DOCTYPE html> \n<html>\n<head>\n    <!--<meta http-equiv=\"refresh\" content=\"10\"> -->\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n    <link rel=\"stylesheet\" href=\"//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css\">\n    <script src=\"https://code.jquery.com/jquery-1.12.4.js\"></script>\n    <script src=\"https://code.jquery.com/ui/1.12.1/jquery-ui.js\"></script>\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n    <script>\n  $( function() {\n    $( \"#start-date\" ).datepicker();\n    $(\"#end-date\").datepicker();\n  } );\n  \n  \n  function formsubmit(){\n    $(\"#startDate\").val($( \"#start-date\" ).val());\n    $(\"#endDate\").val($( \"#end-date\" ).val());\n\n\n  }\n\n  </script>\n    </head>\n    <body class=\"alert-homepage\">\n        <div class=\"container-fluid\">\n            <div class=\"row dashboard-title\">\n                <h1>Alerts Dashboard</h1>\n            </div>\n            <div class=\"row data-col\">\n                <div class=\"col-sm-6\">\n                    <a href=\"/showhourlydata\" id=\"hourlyBox\" target=\"_blank\">\n                    <div class=\"{{hourlyStatus}} status-box\">\n                        <h2>Hourly Status</h2>\n                        <p>Status : {{hourlyStatus}}</p>\n                        <p>Number of alerts: {{hourlyFailed}} ({{hourlyUniqueCount}})</p>\n                    </div>\n                    </a>\n                </div>\n                <div class=\"col-sm-6\">\n                    <a href=\"/showdailystatus\" id=\"dailyBox\" target=\"_blank\">\n                        <div class=\"{{dailyStatus}} status-box\">\n                            <h2>Daily Status</h2>\n                            <p>Status : {{dailyStatus}}</p>\n                            <p>Number of alerts: {{dailyFailed}}  ({{dailyUniqueCount}})</p>\n                        </div>\n                    </a>\n                </div>\n            </div>\n            \n            <div class=\"row date-picker\">\n                <form action=\"/dateSelect\" target=\"_blank\">\n                <p><label>Start Date: <br/><input type=\"text\" id=\"start-date\" name=\"startDate\"></label>\n                <label>End Date: <br/><input type=\"text\" id=\"end-date\" name=\"endDate\"></label>\n                <label>Severity: <br/><select class=\"select-type\" name=\"severity\">\n                    <option value=\"all\">All</option>\n                    <option value=\"major\">Major</option>\n                    <option value=\"minor\">Minor</option>\n                </select>\n                </label>\n                \n                </p>\n                <!--<input type=\"hidden\" id=\"startDate\" name=\"startDate\" value=\"\">\n                <input type=\"hidden\" id=\"endDate\" name=\"endDate\" value=\"\">\n                <input type=\"submit\" id=\"getData\" value=\"Alert Trend\" onClick=\"formsubmit()\">-->\n                <input type=\"submit\" id=\"getData\" value=\"Alert Trend\" >\n                </form>\n            </div>\n           <!-- <p><a href=\"/selectDate\" id=\"dateButton\" target=\"_blank\">Alert Trend</a></p>-->\n        </div>\n\n    </body>\n   \n</html>\n","x":1053.9546508789062,"y":38,"wires":[["b8c05c36.22c0b"]]},{"id":"89e1b22a.b5d7c","type":"http response","z":"ca23f017.a3529","name":"httpResponse","x":1676.963134765625,"y":146.3267059326172,"wires":[]},{"id":"11818230.e7f19e","type":"function","z":"ca23f017.a3529","name":"function","func":"var hourlyFailed=0,\n    dailyFailed=0,\n    hourlyData=[],\n    dailyData=[];\n\nif (!context.data){\n   context.data = {\n       alerts: {}\n   };\n} \nif(msg.identifier === \"jobAlerts\"){\n    context.data.alerts.jobalerts = msg.payload;\n} else {\n    context.data.alerts.lookup = msg.payload;\n}\n\nif(context.data.alerts.jobalerts && context.data.alerts.lookup){\n     msg.payload = context.data;\n     context.data = null;\n     //for homepage alertdashboard\n     \n    for (var i=0;i<msg.payload.alerts.jobalerts.length;i++){\n        var currentTime=new Date().getTime(),\n            alertDate=new Date(msg.payload.alerts.jobalerts[i].AlertDate).getTime();\n        if((currentTime-3600000) <= alertDate && alertDate<=currentTime){\n            hourlyData.push(msg.payload.alerts.jobalerts[i]);\n            hourlyFailed=hourlyFailed+1;\n        }\n        if((currentTime-86400000) <= alertDate && alertDate<=currentTime){\n            dailyData.push(msg.payload.alerts.jobalerts[i]);\n            dailyFailed=dailyFailed+1;\n        }\n        if(hourlyFailed===0){\n            msg.hourlyStatus=\"Green\";\n        } else msg.hourlyStatus=\"Red\";\n        if(dailyFailed===0){\n            msg.dailyStatus=\"Green\";\n        } else msg.dailyStatus=\"Red\";\n        msg.dailyFailed=dailyFailed;\n        msg.hourlyFailed=hourlyFailed;\n    }\n    msg.dailydata=dailyData;\n    msg.hourlydata=hourlyData;\n    msg.payload.alerts.lookup=JSON.parse(msg.payload.alerts.lookup);\n\n  /**removing dupliacte entries from lookup***/\n  Array.prototype.remove = function(from, to) {\n  var rest = this.slice((to || from) + 1 || this.length);\n  this.length = from < 0 ? this.length + from : from;\n  return this.push.apply(this, rest);\n};\nfor (var i=0;i<msg.payload.alerts.lookup.length;i++) {\n    for(var j=i+1;j<msg.payload.alerts.lookup.length;j++){\n        if(i!=j && (msg.payload.alerts.lookup[i].JOB_NAME == msg.payload.alerts.lookup[j].JOB_NAME)){\n           //delete  msg.payload.alerts.lookup[j];\n           msg.payload.alerts.lookup.remove(j);\n        }\n    }\n}\n \n  /****/\n  \n//for hourlydata array\nvar finalArr=new Array([]),\n    hourlyAlertArray= [];\nfor (var i=0;i<msg.payload.alerts.lookup.length;i++) {\n    var k=0;\n    finalArr[i] = [];\n    var temp1=[];\n    for (var j=0;j<msg.hourlydata.length;j++) {\n        if (msg.hourlydata[j].AlertKey===msg.payload.alerts.lookup[i].JOB_NAME) {\n            msg.hourlydata[j][\"JobGroup\"]=msg.payload.alerts.lookup[i].JOB_GROUP;\n            finalArr[i][k]=msg.hourlydata[j];\n            //msg.hourlydata.splice(j, 1);\n            k++;\n        } else {\n            msg.hourlydata[j][\"JobGroup\"]=\"iLA\";\n            temp1.push(msg.hourlydata[j]);\n        }\n    }\n    msg.hourlydata = temp1;\n    if (finalArr[i].length !== 0) {\n        hourlyAlertArray.push(finalArr[i]);\n    }\n}\n\nvar x = {},y=temp1;\nvar i = y.length;\n//var newArr=[];\nwhile(i--) {\n    var sHash = y[i].AlertKey.toString();\n    if (typeof(x[sHash]) == \"undefined\") \n        x[sHash] = [];\n    x[sHash].push(y[i]);\n}\nvar hourlyNoGroup=[];\nfor(var key in x) {\n    hourlyNoGroup.push(x[key]);\n}\nhourlyAlertArray =hourlyAlertArray.concat(hourlyNoGroup);\nmsg.hourlyAlertData=hourlyAlertArray;\n\n\n//for dailydata array\nvar finalArr1=new Array([]),\n    dailyAlertArray= [];\nfor (var i=0;i<msg.payload.alerts.lookup.length;i++) {\n    var k=0;\n    finalArr1[i] = [];\n    var temp=[];\n    for (var j=0;j<msg.dailydata.length;j++) {\n        if (msg.dailydata[j].AlertKey===msg.payload.alerts.lookup[i].JOB_NAME) {\n            msg.dailydata[j][\"JobGroup\"]=msg.payload.alerts.lookup[i].JOB_GROUP;\n            finalArr1[i][k]=msg.dailydata[j];\n            //delete temp[j];\n            k++;\n        } else {\n            msg.dailydata[j][\"JobGroup\"]=\"iLA\";\n            temp.push(msg.dailydata[j]);\n        }\n    }\n    msg.dailydata = temp;\n    if (finalArr1[i].length !== 0) {\n        dailyAlertArray.push(finalArr1[i]);\n    }\n\n}\n/*var temp=msg.dailydata,\nnewtemp=msg.dailydata;\nfor (var i=0;i<temp;i++) {\n    for (var j=0;j<tempVar;j++) {\n        if(temp[i].AlertKey===tempVar[j]) {\n            newtemp.splice(i,1);\n        }\n    }\n}*/\n\nvar x = {},y=temp;\nvar i = y.length;\n//var newArr=[];\nwhile(i--) {\n    var sHash = y[i].AlertKey.toString();\n    if (typeof(x[sHash]) == \"undefined\") \n        x[sHash] = [];\n    x[sHash].push(y[i]);\n}\nvar dailyNoGroup=[];\nfor(var key in x) {\n    dailyNoGroup.push(x[key]);\n}\ndailyAlertArray =dailyAlertArray.concat(dailyNoGroup);\nmsg.dailyAlertData=dailyAlertArray;\nmsg.dailyUniqueCount=dailyAlertArray.length;\nmsg.hourlyUniqueCount=hourlyAlertArray.length;\n\nif (msg.req.url===\"/alertDashboard\"){\n    return [msg,null,null]\n} else if(msg.req.url===\"/showdailystatus\") {\n    return [null,msg,null]\n} else if(msg.req.url===\"/showhourlydata\") {\n    return [null,null,msg]\n} \n}\n\n","outputs":"3","noerr":0,"x":786.9573974609375,"y":54.83807373046875,"wires":[["916e95a0.068558"],["1575cdf1.3564f2"],["1a623971.3f7dd7"]]},{"id":"350c68fe.633658","type":"http in","z":"ca23f017.a3529","name":"showdailystatus","url":"/showdailystatus","method":"get","swaggerDoc":"","x":85,"y":111.23297119140625,"wires":[["f4f5efb.32ecc1","3b54eb7c.48ff44"]]},{"id":"5ea1e5a9.4c940c","type":"template","z":"ca23f017.a3529","name":"daily-status","field":"payload","fieldType":"msg","format":"html","syntax":"mustache","template":"<!DOCTYPE html> \n<html>\n    <head>\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n    </head>\n<body>\n    <div class=\"container-fluid\">\n        <div class=\"row dashboard-title\">\n            <h1>Alerts Dashboard</h1>\n        </div>\n        {{#dailyAlert.length}}\n        <div class=\"\">\n            <table class=\"table table-bordered alert-table\">\n                <tr>\n                    <th>AlertKey</th>\n                    <th>Group</th>\n                    <th>Count</th>\n                    <th>Last Occurence</th>\n                    <th class=\"message-head\">Message</th>\n                </tr>\n        {{#dailyAlert}}\n        <tr>\n            <td>{{AlertKey}}</td>\n            <td>{{JobGroup}}</td>\n            <td>{{Count}}</td>\n            <td>{{AlertDate}}</td>\n            <td class=\"message-head\"><span class=\"hasTooltip\">{{Message}}<p>{{Message}}</p></span></td>\n            \n        </tr>\n    {{/dailyAlert}}\n    </table>\n    </div>\n    {{/dailyAlert.length}}\n    {{^dailyAlert.length}}\n        <h2>No Alerts to show!</h2>\n    {{/dailyAlert.length}}\n    </div>\n</body>\n</html>","x":1225,"y":110.23297119140625,"wires":[["b8c05c36.22c0b"]]},{"id":"ae87e0c5.6dca8","type":"template","z":"ca23f017.a3529","name":"hourly-status","field":"payload","fieldType":"msg","format":"handlebars","syntax":"mustache","template":"<!DOCTYPE html> \n<html>\n    <head>\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n\n    </head>\n<body>\n    <div class=\"row dashboard-title\">\n        <h1>Alerts Dashboard</h1>\n    </div>\n    {{#hourlyAlert.length}}\n        <div class=\"\">\n            <table class=\"table table-bordered alert-table\">\n                <tr>\n                    <th>AlertKey</th>\n                    <th>Group</th>\n                    <th>Count</th>\n                    <th>Last Occurence</th>\n                    <th class=\"message-head\">Message</th>\n                </tr>\n        {{#hourlyAlert}}\n        <tr>\n            <td>{{AlertKey}}</td>\n            <td>{{JobGroup}}</td>\n            <td>{{Count}}</td>\n            <td>{{AlertDate}}</td>\n            <td class=\"message-head\"><span class=\"hasTooltip\">{{Message}}<p>{{Message}}</p></span></td>\n        </tr>\n    {{/hourlyAlert}}\n    </table>\n    </div>\n    {{/hourlyAlert.length}}\n    {{^hourlyAlert.length}}\n        <h2>No Alerts to show!</h2>\n    {{/hourlyAlert.length}}\n</body>\n</html>","x":1041,"y":225.23297119140625,"wires":[["b8c05c36.22c0b"]]},{"id":"1f4e6792.c67d98","type":"http in","z":"ca23f017.a3529","name":"showhourlystatus","url":"/showhourlydata","method":"get","swaggerDoc":"","x":85,"y":193.23297119140625,"wires":[["f4f5efb.32ecc1","3b54eb7c.48ff44"]]},{"id":"184e27aa.a32df8","type":"function","z":"ca23f017.a3529","name":"","func":"//msg.identifyGroup=msg.payload;\nmsg.identifier=\"jobLookup\";\nreturn msg;","outputs":"1","noerr":0,"x":775,"y":157.23297119140625,"wires":[["11818230.e7f19e"]]},{"id":"26d30c49.d69674","type":"function","z":"ca23f017.a3529","name":"","func":"msg.identifier=\"jobAlerts\";\nreturn msg;","outputs":"1","noerr":0,"x":592,"y":57.23297119140625,"wires":[["11818230.e7f19e"]]},{"id":"1575cdf1.3564f2","type":"function","z":"ca23f017.a3529","name":"","func":"var dailyAlert=[];\nfor (var i=0;i<msg.dailyAlertData.length;i++){\n    msg.dailyAlertData[i][0][\"Count\"]=msg.dailyAlertData[i].length;\n    dailyAlert.push(msg.dailyAlertData[i][0]);\n\n}\n\ndailyAlert.sort(function(a, b){\n    return b.Count-a.Count\n});\nmsg.dailyAlert=dailyAlert;\nreturn msg","outputs":1,"noerr":0,"x":1049.5056762695312,"y":81.47158813476562,"wires":[["5ea1e5a9.4c940c"]]},{"id":"1a623971.3f7dd7","type":"function","z":"ca23f017.a3529","name":"","func":"var hourlyAlert=[];\nfor (var i=0;i<msg.hourlyAlertData.length;i++){\n    msg.hourlyAlertData[i][0][\"Count\"]=msg.hourlyAlertData[i].length;\n    hourlyAlert.push(msg.hourlyAlertData[i][0]);\n\n}\nhourlyAlert.sort(function(a, b){\n    return b.Count-a.Count\n});\nmsg.hourlyAlert=hourlyAlert;\nreturn msg","outputs":1,"noerr":0,"x":625.5084838867188,"y":196.47158813476562,"wires":[["ae87e0c5.6dca8"]]},{"id":"32dff273.7ad12e","type":"template","z":"ca23f017.a3529","name":"dateRangeData","field":"payload","fieldType":"msg","format":"html","syntax":"mustache","template":"<!DOCTYPE html> \n<html>\n    <head>\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n    </head>\n<body>\n    <div class=\"container-fluid\">\n        <div class=\"row dashboard-title\">\n            <h1>Alerts Dashboard</h1>\n        </div>\n        {{#dailyAlert.length}}\n        <div class=\"\">\n            <table class=\"table table-bordered alert-table\">\n                <tr>\n                    <th>AlertKey</th>\n                    <th>Group</th>\n                    <th>Count</th>\n                    <th>Last Occurence</th>\n                    <th>Severity</th>\n                    <th class=\"message-head\">Message</th>\n                </tr>\n        {{#dailyAlert}}\n        <tr>\n            <td>{{AlertKey}}</td>\n            <td>{{JobGroup}}</td>\n            <td>{{Count}}</td>\n            <td>{{AlertDate}}</td>\n            <td>{{Severity}}</td>\n            <td class=\"message-head\"><span class=\"hasTooltip\">{{Message}}<p>{{Message}}</p></span></td>\n            \n        </tr>\n    {{/dailyAlert}}\n    </table>\n    </div>\n    {{/dailyAlert.length}}\n    {{^dailyAlert.length}}\n        <h2>No Alerts to show!</h2>\n    {{/dailyAlert.length}}\n    </div>\n</body>\n</html>","x":1366,"y":315.23297119140625,"wires":[["b8c05c36.22c0b"]]},{"id":"c220697.0bea598","type":"http in","z":"ca23f017.a3529","name":"getUrl","url":"/dateSelect","method":"get","swaggerDoc":"","x":55,"y":383.23297119140625,"wires":[["e5258d1b.b8683","cbe12a8b.9fc2a8"]]},{"id":"8132200d.0dabc","type":"http request","z":"ca23f017.a3529","name":"alertsJson","method":"GET","ret":"obj","url":"","tls":"","x":466,"y":384,"wires":[["fe27e12e.5a87a"]]},{"id":"e5258d1b.b8683","type":"function","z":"ca23f017.a3529","name":"","func":"var msgurl=msg.req.url,\nfinalUrl=msgurl.substring(msgurl.indexOf(\"?\") + 0);\nmsg.url=\"http://app:81/dashboard/alerts/api\"+finalUrl;\nreturn msg;","outputs":1,"noerr":0,"x":254,"y":385,"wires":[["8132200d.0dabc"]]},{"id":"fe27e12e.5a87a","type":"function","z":"ca23f017.a3529","name":"","func":"msg.identifier=\"jobAlerts\";\nreturn msg;","outputs":"1","noerr":0,"x":686,"y":384,"wires":[["668202a.9e1a1fc"]]},{"id":"668202a.9e1a1fc","type":"function","z":"ca23f017.a3529","name":"","func":"if (!context.data){\n   context.data = {\n       alerts: {}\n   };\n} \nif(msg.identifier === \"jobAlerts\"){\n    context.data.alerts.jobalerts = msg.payload;\n} else {\n    context.data.alerts.lookup = msg.payload;\n}\n\nif(context.data.alerts.jobalerts && context.data.alerts.lookup){\n     msg.payload = context.data;\n     context.data = null;\n     //for homepage alertdashboard\n    msg.dateData=msg.payload.alerts.jobalerts;\n    msg.payload.alerts.lookup=JSON.parse(msg.payload.alerts.lookup);\n\n  /**removing dupliacte entries from lookup***/\n  Array.prototype.remove = function(from, to) {\n  var rest = this.slice((to || from) + 1 || this.length);\n  this.length = from < 0 ? this.length + from : from;\n  return this.push.apply(this, rest);\n};\nfor (var i=0;i<msg.payload.alerts.lookup.length;i++) {\n    for(var j=i+1;j<msg.payload.alerts.lookup.length;j++){\n        if(i!=j && (msg.payload.alerts.lookup[i].JOB_NAME == msg.payload.alerts.lookup[j].JOB_NAME)){\n           //delete  msg.payload.alerts.lookup[j];\n           msg.payload.alerts.lookup.remove(j);\n        }\n    }\n}\n//for datedata array\nvar finalArr1=new Array([]),\n    datedataArray= [];\n    for (var i=0;i<msg.payload.alerts.lookup.length;i++) {\n        var k=0;\n        finalArr1[i] = [];\n        var temp=[];\n        for (var j=0;j<msg.dateData.length;j++) {\n            if (msg.dateData[j].AlertKey===msg.payload.alerts.lookup[i].JOB_NAME) {\n                msg.dateData[j][\"JobGroup\"]=msg.payload.alerts.lookup[i].JOB_GROUP;\n                finalArr1[i][k]=msg.dateData[j];\n                //delete temp[j];\n                k++;\n            } else {\n                msg.dateData[j][\"JobGroup\"]=\"iLA\";\n                temp.push(msg.dateData[j]);\n            }\n        }\n        msg.dateData = temp;\n        if (finalArr1[i].length !== 0) {\n            datedataArray.push(finalArr1[i]);\n        }\n\n    }\n\nvar x = {},y=temp;\nvar i = y.length;\n//var newArr=[];\nwhile(i--) {\n    var sHash = y[i].AlertKey.toString();\n    if (typeof(x[sHash]) == \"undefined\") \n        x[sHash] = [];\n    x[sHash].push(y[i]);\n}\nvar dateNoGroup=[];\nfor(var key in x) {\n    dateNoGroup.push(x[key]);\n}\ndatedataArray =datedataArray.concat(dateNoGroup);\nmsg.datedataArray=datedataArray;\n\n\nreturn msg;\n}\n\n","outputs":1,"noerr":0,"x":937,"y":372,"wires":[["ef077013.1452e"]]},{"id":"ef077013.1452e","type":"function","z":"ca23f017.a3529","name":"","func":"var dateAlert=[];\nfor (var i=0;i<msg.datedataArray.length;i++){\n    msg.datedataArray[i][0][\"Count\"]=msg.datedataArray[i].length;\n    dateAlert.push(msg.datedataArray[i][0]);\n\n}\nvar majorAlert=[],minorAlert=[];\nfor (var i=0;i<dateAlert.length;i++) {\n    if(dateAlert[i][\"Severity\"]===\"major\") {\n        majorAlert.push(dateAlert[i]);\n    } else if(dateAlert[i][\"Severity\"]===\"minor\") {\n        minorAlert.push(dateAlert[i]);\n\n    }\n}\nmajorAlert.sort(function(a, b){\n    return b.Count-a.Count\n});\nminorAlert.sort(function(a, b){\n    return b.Count-a.Count\n});\ndateAlert.sort(function(a, b){\n    return b.Count-a.Count\n});\nmsg.dailyAlert=majorAlert.concat(minorAlert);\nreturn msg","outputs":1,"noerr":0,"x":1132,"y":330,"wires":[["32dff273.7ad12e"]]},{"id":"cbe12a8b.9fc2a8","type":"http request","z":"ca23f017.a3529","name":"getJobGroup","method":"GET","ret":"txt","url":"http://app:81/dashboard/job/lookup","tls":"","x":327,"y":282,"wires":[["c3ba2477.854438"]]},{"id":"c3ba2477.854438","type":"function","z":"ca23f017.a3529","name":"","func":"//msg.identifyGroup=msg.payload;\nmsg.identifier=\"jobLookup\";\nreturn msg;","outputs":"1","noerr":0,"x":677,"y":286,"wires":[["668202a.9e1a1fc"]]},{"id":"b8c05c36.22c0b","type":"function","z":"ca23f017.a3529","name":"No Cache","func":"msg.headers={\n    \"Cache-Control\":\"no-cache, no-store, must-revalidate\",\n    \"Pragma\":\"no-cache\",\n    \"Expires\":\"0\"\n}\nreturn msg;","outputs":1,"noerr":0,"x":1473,"y":102,"wires":[["89e1b22a.b5d7c"]]},{"id":"daca49b.eb182b8","type":"http in","z":"556c4c4b.054284","name":"testApp","url":"/test-app","method":"get","swaggerDoc":"","x":58.00000762939453,"y":162.9999828338623,"wires":[["9641751a.7cfde8","9403701b.37fd3"]]},{"id":"ec93a79a.ecb238","type":"http response","z":"556c4c4b.054284","name":"","x":1074.500020980835,"y":227.44443225860596,"wires":[]},{"id":"b6fdd481.3e26f8","type":"template","z":"556c4c4b.054284","name":"MainPage","field":"payload","fieldType":"msg","format":"handlebars","syntax":"mustache","template":"<!DOCTYPE html> \n<html>\n<head>\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <meta http-equiv=\"refresh\" content=\"1000000\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n\n    \n    </head>\n    <body class=\"alert-homepage\">\n            <div class=\"container-fluid\">\n                <div class=\"row dashboard-title\">\n                    <h1>Jobs Status Dashboard</h1>\n                </div>\n                <div class=\"row\">\n                    <div class=\"col-sm-6\">\n                        <a href=\"/showjobdata\" id=\"hourlyBox\" target=\"_blank\">\n\n                            <div class=\"status-box {{jobsStatus}}\">\n                                <p>Nightly Jobs Status</p>\n                                <p>Jobs Executed: {{jobsExecuted}}/{{totalLookupJobs}} </p>\n                                <p>Percentage Completion {{percentCompletion}}%</p>\n                                <div class=\"progress\">\n                                  <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow={{jobsExecuted}}\n                                  aria-valuemin=\"0\" aria-valuemax={{totalLookupJobs}} style=\"width:{{percentCompletion}}%\">\n                                    <span class=\"sr-only\">70% Complete</span>\n                                  </div>\n                                </div>\n                            </div>\n                        </a>\n                    </div>\n                    <div class=\"col-sm-6\">\n                        \n                    </div>\n                </div>\n            </div>\n\n    </body>\n   \n</html>\n","x":741.6666793823242,"y":117.99999809265137,"wires":[["7b76d29e.afbc9c"]]},{"id":"45090b43.d31494","type":"http in","z":"556c4c4b.054284","name":"showjobdata","url":"/showjobdata","method":"get","swaggerDoc":"","x":75,"y":328.55556869506836,"wires":[["9641751a.7cfde8","9403701b.37fd3"]]},{"id":"e3647657.857f38","type":"template","z":"556c4c4b.054284","name":"JobsTable","field":"payload","fieldType":"msg","format":"handlebars","syntax":"mustache","template":"<!DOCTYPE html> \n<html>\n    <head>\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n    </head>\n<body>\n    <div class=\"container-fluid\">\n        <div class=\"row dashboard-title\">\n            <h1>Jobs Dashboard</h1>\n        </div>\n        {{#dailyAlert.length}}\n        <div class=\"\">\n            <table class=\"table table-bordered alert-table\">\n                <tr>\n                    <th>job_name</th>\n                    <th>server_name</th>\n                    <th>start_time</th>\n                    <th>end_time</th>\n                    <th>status</th>\n                    <th>description</th>\n                    <th>job_group</th>\n                   <!-- <th class=\"message-head\">Message</th>-->\n                </tr>\n        {{#dailyAlert}}\n        <tr>\n            <td>{{JOB_NAME}}</td>\n            <td>{{SERVER_NAME}}</td>\n            <td>{{START_TIME}}</td>\n            <td>{{END_TIME}}</td>\n        \t<td>{{STATUS}}</td>\n        \t{{#LOOKUP}}\n        \t<td>{{DESCRIPTION}}</td>\n        \t<td>{{JOB_GROUP}}</td>\n        \t{{/LOOKUP}}\n            <!--<td class=\"message-head\"><span class=\"hasTooltip\">{{Message}}<p>{{Message}}</p></span></td>-->\n            \n        </tr>\n    {{/dailyAlert}}\n    </table>\n    </div>\n    {{/dailyAlert.length}}\n    {{^dailyAlert.length}}\n        <h2>No Alerts to show!</h2>\n    {{/dailyAlert.length}}\n    </div>\n</body>\n</html>","x":739.111083984375,"y":363.11111068725586,"wires":[["7b76d29e.afbc9c"]]},{"id":"4f614925.ceb618","type":"function","z":"556c4c4b.054284","name":"","func":"var dailyAlert=[];\nfor (var i=0;i<msg.jobsData.length;i++){\n    //msg.jobsData[i][0][\"Count\"]=msg.jobsData[i].length;\n    dailyAlert.push(msg.jobsData[i][0]);\n\n}\n/*dailyAlert.sort(function(a, b){\n    return b.Count-a.Count\n});*/\nmsg.dailyAlert=dailyAlert;\nreturn msg;","outputs":1,"noerr":0,"x":620.3333740234375,"y":282.33337020874023,"wires":[["e3647657.857f38"]]},{"id":"7b76d29e.afbc9c","type":"function","z":"556c4c4b.054284","name":"No Cache","func":"msg.headers={\n    \"Cache-Control\":\"no-cache, no-store, must-revalidate\",\n    \"Pragma\":\"no-cache\",\n    \"Expires\":\"0\"\n}\nreturn msg;","outputs":1,"noerr":0,"x":883.3333892822266,"y":213.1110782623291,"wires":[["ec93a79a.ecb238"]]},{"id":"9641751a.7cfde8","type":"http request","z":"556c4c4b.054284","name":"JobStatus","method":"GET","ret":"obj","url":"http://app:81/dashboard/job/api?type=NIGHTLY","tls":"","x":205.6666717529297,"y":58,"wires":[["9ff7ed3d.467c2"]]},{"id":"9403701b.37fd3","type":"http request","z":"556c4c4b.054284","name":"nightlyLookup","method":"GET","ret":"obj","url":"http://app:81/dashboard/job/lookup?type=NIGHTLY","tls":"","x":272.44447326660156,"y":233.11111068725586,"wires":[["9799d2e7.a7a8f"]]},{"id":"9ff7ed3d.467c2","type":"function","z":"556c4c4b.054284","name":"addJobStatusIdentifier","func":"msg.identifier = 'nightlyStatus';\nreturn msg;","outputs":1,"noerr":0,"x":431.94439697265625,"y":98.33333110809326,"wires":[["f1139c57.2eb46"]]},{"id":"f1139c57.2eb46","type":"function","z":"556c4c4b.054284","name":"payloadHandler","func":"if (!context.data){\n   context.data = {\n       nightly: {}\n   };\n} \nif(msg.identifier === \"nightlyStatus\"){\n    context.data.nightly.status = msg.payload;\n} else {\n    context.data.nightly.lookups = msg.payload;\n}\nif(context.data.nightly.status && context.data.nightly.lookups){\n     msg.payload = context.data;\n     context.data = null;\n\nvar finalArr=new Array([]),\nfinalArray= [];\nfor (var i=0;i<msg.payload.nightly.lookups.length;i++){\n    var k=0;\n    finalArr[i] = [];\n    for (var j=0;j<msg.payload.nightly.status.length;j++){\n        if(msg.payload.nightly.lookups[i].JOB_NAME===msg.payload.nightly.status[j].LOOKUP[0].JOB_NAME){\n            finalArr[i][k]=msg.payload.nightly.status[j];\n            k++;\n        }\n    }\n    if(finalArr[i].length !== 0){\n        finalArray.push(finalArr[i]);\n    }\n}\nfor (var i=0;i<finalArray.length;i++){\n    if(finalArray[i][0].STATUS===\"FAILURE\"){\n        msg.jobsStatus=\"failed\";\n    } else msg.jobsStatus=\"success\";\n}\nmsg.jobsData=finalArray;\nmsg.jobsExecuted=finalArray.length;\nmsg.totalLookupJobs=msg.payload.nightly.lookups.length;\nmsg.percentCompletion=Math.round((msg.jobsExecuted/msg.totalLookupJobs)*100);\n\nif (msg.req.url===\"/showjobdata\"){\n    return [null,msg]\n} else {\n    return [msg,null]\n} \n}","outputs":"2","noerr":0,"x":569.0555648803711,"y":207.11110305786133,"wires":[["b6fdd481.3e26f8"],["4f614925.ceb618"]]},{"id":"9799d2e7.a7a8f","type":"function","z":"556c4c4b.054284","name":"addlookupIdentifier","func":"msg.identifier = 'nightlyLookups';\nreturn msg;","outputs":1,"noerr":0,"x":413.6111145019531,"y":298.222225189209,"wires":[["f1139c57.2eb46"]]},{"id":"ae5ac3cd.49572","type":"http in","z":"87759769.25c5a8","name":"Home Page","url":"/","method":"get","swaggerDoc":"","x":169.5,"y":118,"wires":[["bfdc990c.587b78"]]},{"id":"bfdc990c.587b78","type":"template","z":"87759769.25c5a8","name":"Home Page Template","field":"payload","fieldType":"msg","format":"handlebars","syntax":"mustache","template":"Under Construction","x":380.5,"y":126,"wires":[["e675c94f.d7d098"]]},{"id":"e675c94f.d7d098","type":"http response","z":"87759769.25c5a8","name":"","x":575.5,"y":126,"wires":[]}]
+[
+    {
+        "id": "ec253f80.0c828",
+        "type": "tab",
+        "label": "Job Dashbaord"
+    },
+    {
+        "id": "ca23f017.a3529",
+        "type": "tab",
+        "label": "Alert DashBoard"
+    },
+    {
+        "id": "556c4c4b.054284",
+        "type": "tab",
+        "label": "JobStatus Dashboard"
+    },
+    {
+        "id": "87759769.25c5a8",
+        "type": "tab",
+        "label": "Home Page"
+    },
+    {
+        "id": "f359e7a3.637498",
+        "type": "mongodb",
+        "z": "ec253f80.0c828",
+        "hostname": "mongo",
+        "port": "27017",
+        "db": "node-red",
+        "name": "Mongo"
+    },
+    {
+        "id": "fc8ab9ea.abc4b8",
+        "type": "http in",
+        "z": "ec253f80.0c828",
+        "name": "Request",
+        "url": "/dashboard/controlm-jobs",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 108,
+        "y": 40,
+        "wires": [
+            [
+                "14dae9c3.2fa3f6"
+            ]
+        ]
+    },
+    {
+        "id": "c495f8a8.8322c8",
+        "type": "mongodb in",
+        "z": "ec253f80.0c828",
+        "mongodb": "f359e7a3.637498",
+        "name": "Get Data",
+        "collection": "controlm-jobs",
+        "operation": "aggregate",
+        "x": 309,
+        "y": 45,
+        "wires": [
+            [
+                "1befc500.4f886b"
+            ]
+        ]
+    },
+    {
+        "id": "6490c6c8.71e308",
+        "type": "http response",
+        "z": "ec253f80.0c828",
+        "name": "Reponse",
+        "x": 731,
+        "y": 49,
+        "wires": []
+    },
+    {
+        "id": "1befc500.4f886b",
+        "type": "template",
+        "z": "ec253f80.0c828",
+        "name": "HTML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html>\n<head>\n<title>Batch Job DashBoard</title>\n</head>\n<body>\n\n<h1>Batch Job DashBoard</h1>\n<table style=\"width:100%\">\n    <th>JOB_NAME</th>\n    <th>SERVER_NAME</th>\n    <th>START_TIME</th>\n    <th>END_TIME</th>\n    <th>STATUS</th>\n    <th>DESCRIPTION</th>\n    <th>JOB_GROUP</th>\n{{#payload}}\n  <tr>\n    <td>{{JOB_NAME}}</td>\n    <td>{{SERVER_NAME}}</td> \n    <td>{{START_TIME}}</td>\n\t<td>{{END_TIME}}</td>\n\t<td>{{STATUS}}</td>\n\t{{#LOOKUP}}\n\t<td>{{DESCRIPTION}}</td>\n\t<td>{{JOB_GROUP}}</td>\n\t{{/LOOKUP}}\n  </tr>\n  {{/payload}}\n</table>\n\n</body>\n</html>\n\n",
+        "x": 500,
+        "y": 106,
+        "wires": [
+            [
+                "6490c6c8.71e308"
+            ]
+        ]
+    },
+    {
+        "id": "14dae9c3.2fa3f6",
+        "type": "function",
+        "z": "ec253f80.0c828",
+        "name": "Set Fetch Properties",
+        "func": "var job_type=msg.payload.type;\nif(typeof job_type== \"undefined\"){\n    job_type=/.*.*/;\n}\nmsg.payload=[\n    {\n      $lookup:\n     {\n       from: \"controlm-job-lookup\",\n       localField: \"JOB_NAME\",\n       foreignField: \"JOB_NAME\",\n       as: \"LOOKUP\"\n     }\n   },\n   { $match: {\"LOOKUP.JOB_GROUP\" : job_type  } },\n   { $sort: { START_TIME: -1 }},\n    { $limit : 50 }\n];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 271,
+        "y": 148,
+        "wires": [
+            [
+                "c495f8a8.8322c8"
+            ]
+        ]
+    },
+    {
+        "id": "6851e03d.5994e",
+        "type": "http in",
+        "z": "ec253f80.0c828",
+        "name": "Request",
+        "url": "/dashboard/alerts",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 101,
+        "y": 186,
+        "wires": [
+            [
+                "33f2dced.9b3cc4"
+            ]
+        ]
+    },
+    {
+        "id": "d992a9ee.552d88",
+        "type": "mongodb in",
+        "z": "ec253f80.0c828",
+        "mongodb": "f359e7a3.637498",
+        "name": "Get Data",
+        "collection": "alert",
+        "operation": "find",
+        "x": 302,
+        "y": 191,
+        "wires": [
+            [
+                "cf795a56.57ff58"
+            ]
+        ]
+    },
+    {
+        "id": "ceb78fc1.48a67",
+        "type": "http response",
+        "z": "ec253f80.0c828",
+        "name": "Reponse",
+        "x": 724,
+        "y": 195,
+        "wires": []
+    },
+    {
+        "id": "cf795a56.57ff58",
+        "type": "template",
+        "z": "ec253f80.0c828",
+        "name": "HTML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html>\n<head>\n<title>Alert DashBoard</title>\n</head>\n<body>\n\n<h1>Alert DashBoard</h1>\n<table style=\"width:100% ;border: 1px solid black;\">\n{{#payload}}\n  <tr>\n    <td style=\"border: 1px solid black;\">{{Asset}}</td>\n    <td style=\"border: 1px solid black;\">{{Severity}}</td> \n    <td style=\"border: 1px solid black;\">{{Mode}}</td>\n\t<td style=\"border: 1px solid black;\">{{Message}}</td>\n\t<td style=\"border: 1px solid black;\">{{AlertDate}}</td>\n\t<td style=\"border: 1px solid black;\">{{AlertKey}}</td>\n  </tr>\n  {{/payload}}\n</table>\n\n</body>\n</html>\n\n",
+        "x": 493,
+        "y": 252,
+        "wires": [
+            [
+                "ceb78fc1.48a67"
+            ]
+        ]
+    },
+    {
+        "id": "33f2dced.9b3cc4",
+        "type": "function",
+        "z": "ec253f80.0c828",
+        "name": "Set Fetch Properties",
+        "func": "msg.limit= 0;\nmsg.skip= 0;\nmsg.sort={ AlertDate: -1 };\nmsg.payload={Severity:\"major\"};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 264,
+        "y": 294,
+        "wires": [
+            [
+                "d992a9ee.552d88"
+            ]
+        ]
+    },
+    {
+        "id": "3b54eb7c.48ff44",
+        "type": "http request",
+        "z": "ca23f017.a3529",
+        "name": "getJobGroup",
+        "method": "GET",
+        "ret": "txt",
+        "url": "http://app:81/dashboard/job/lookup",
+        "tls": "",
+        "x": 425,
+        "y": 153.23297119140625,
+        "wires": [
+            [
+                "184e27aa.a32df8"
+            ]
+        ]
+    },
+    {
+        "id": "cef66459.faad18",
+        "type": "http in",
+        "z": "ca23f017.a3529",
+        "name": "AlertDashboard",
+        "url": "/AlertDashboard",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 85,
+        "y": 50.28977966308594,
+        "wires": [
+            [
+                "f4f5efb.32ecc1",
+                "3b54eb7c.48ff44"
+            ]
+        ]
+    },
+    {
+        "id": "f4f5efb.32ecc1",
+        "type": "http request",
+        "z": "ca23f017.a3529",
+        "name": "alertsJson",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://app:81/dashboard/alerts/api?severity=major",
+        "tls": "",
+        "x": 420.9516906738281,
+        "y": 58,
+        "wires": [
+            [
+                "26d30c49.d69674"
+            ]
+        ]
+    },
+    {
+        "id": "916e95a0.068558",
+        "type": "template",
+        "z": "ca23f017.a3529",
+        "name": "mainPage",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html> \n<html>\n<head>\n    <!--<meta http-equiv=\"refresh\" content=\"10\"> -->\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n    <link rel=\"stylesheet\" href=\"//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css\">\n    <script src=\"https://code.jquery.com/jquery-1.12.4.js\"></script>\n    <script src=\"https://code.jquery.com/ui/1.12.1/jquery-ui.js\"></script>\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n    <script>\n  $( function() {\n    $( \"#start-date\" ).datepicker();\n    $(\"#end-date\").datepicker();\n  } );\n  \n  \n  function formsubmit(){\n    $(\"#startDate\").val($( \"#start-date\" ).val());\n    $(\"#endDate\").val($( \"#end-date\" ).val());\n\n\n  }\n\n  </script>\n    </head>\n    <body class=\"alert-homepage\">\n        <div class=\"container-fluid\">\n            <div class=\"row dashboard-title\">\n                <h1>Alerts Dashboard</h1>\n            </div>\n            <div class=\"row data-col\">\n                <div class=\"col-sm-6\">\n                    <a href=\"/showhourlydata\" id=\"hourlyBox\" target=\"_blank\">\n                    <div class=\"{{hourlyStatus}} status-box\">\n                        <h2>Hourly Status</h2>\n                        <p>Status : {{hourlyStatus}}</p>\n                        <p>Number of alerts: {{hourlyFailed}} ({{hourlyUniqueCount}})</p>\n                    </div>\n                    </a>\n                </div>\n                <div class=\"col-sm-6\">\n                    <a href=\"/showdailystatus\" id=\"dailyBox\" target=\"_blank\">\n                        <div class=\"{{dailyStatus}} status-box\">\n                            <h2>Daily Status</h2>\n                            <p>Status : {{dailyStatus}}</p>\n                            <p>Number of alerts: {{dailyFailed}}  ({{dailyUniqueCount}})</p>\n                        </div>\n                    </a>\n                </div>\n            </div>\n            \n            <div class=\"row date-picker\">\n                <form action=\"/dateSelect\" target=\"_blank\">\n                <p><label>Start Date: <br/><input type=\"text\" id=\"start-date\" name=\"startDate\"></label>\n                <label>End Date: <br/><input type=\"text\" id=\"end-date\" name=\"endDate\"></label>\n                <label>Severity: <br/><select class=\"select-type\" name=\"severity\">\n                    <option value=\"all\">All</option>\n                    <option value=\"major\">Major</option>\n                    <option value=\"minor\">Minor</option>\n                </select>\n                </label>\n                \n                </p>\n                <!--<input type=\"hidden\" id=\"startDate\" name=\"startDate\" value=\"\">\n                <input type=\"hidden\" id=\"endDate\" name=\"endDate\" value=\"\">\n                <input type=\"submit\" id=\"getData\" value=\"Alert Trend\" onClick=\"formsubmit()\">-->\n                <input type=\"submit\" id=\"getData\" value=\"Alert Trend\" >\n                </form>\n            </div>\n           <!-- <p><a href=\"/selectDate\" id=\"dateButton\" target=\"_blank\">Alert Trend</a></p>-->\n        </div>\n\n    </body>\n   \n</html>\n",
+        "x": 1053.9546508789062,
+        "y": 38,
+        "wires": [
+            [
+                "b8c05c36.22c0b"
+            ]
+        ]
+    },
+    {
+        "id": "89e1b22a.b5d7c",
+        "type": "http response",
+        "z": "ca23f017.a3529",
+        "name": "httpResponse",
+        "x": 1676.963134765625,
+        "y": 146.3267059326172,
+        "wires": []
+    },
+    {
+        "id": "11818230.e7f19e",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "function",
+        "func": "var hourlyFailed=0,\n    dailyFailed=0,\n    hourlyData=[],\n    dailyData=[];\n\nif (!context.data){\n   context.data = {\n       alerts: {}\n   };\n} \nif(msg.identifier === \"jobAlerts\"){\n    context.data.alerts.jobalerts = msg.payload;\n} else {\n    context.data.alerts.lookup = msg.payload;\n}\n\nif(context.data.alerts.jobalerts && context.data.alerts.lookup){\n     msg.payload = context.data;\n     context.data = null;\n     //for homepage alertdashboard\n     \n    for (var i=0;i<msg.payload.alerts.jobalerts.length;i++){\n        var currentTime=new Date().getTime(),\n            alertDate=new Date(msg.payload.alerts.jobalerts[i].AlertDate).getTime();\n        if((currentTime-3600000) <= alertDate && alertDate<=currentTime){\n            hourlyData.push(msg.payload.alerts.jobalerts[i]);\n            hourlyFailed=hourlyFailed+1;\n        }\n        if((currentTime-86400000) <= alertDate && alertDate<=currentTime){\n            dailyData.push(msg.payload.alerts.jobalerts[i]);\n            dailyFailed=dailyFailed+1;\n        }\n        if(hourlyFailed===0){\n            msg.hourlyStatus=\"Green\";\n        } else msg.hourlyStatus=\"Red\";\n        if(dailyFailed===0){\n            msg.dailyStatus=\"Green\";\n        } else msg.dailyStatus=\"Red\";\n        msg.dailyFailed=dailyFailed;\n        msg.hourlyFailed=hourlyFailed;\n    }\n    msg.dailydata=dailyData;\n    msg.hourlydata=hourlyData;\n    msg.payload.alerts.lookup=JSON.parse(msg.payload.alerts.lookup);\n\n  /**removing dupliacte entries from lookup***/\n  Array.prototype.remove = function(from, to) {\n  var rest = this.slice((to || from) + 1 || this.length);\n  this.length = from < 0 ? this.length + from : from;\n  return this.push.apply(this, rest);\n};\nfor (var i=0;i<msg.payload.alerts.lookup.length;i++) {\n    for(var j=i+1;j<msg.payload.alerts.lookup.length;j++){\n        if(i!=j && (msg.payload.alerts.lookup[i].JOB_NAME == msg.payload.alerts.lookup[j].JOB_NAME)){\n           //delete  msg.payload.alerts.lookup[j];\n           msg.payload.alerts.lookup.remove(j);\n        }\n    }\n}\n \n  /****/\n  \n//for hourlydata array\nvar finalArr=new Array([]),\n    hourlyAlertArray= [];\nfor (var i=0;i<msg.payload.alerts.lookup.length;i++) {\n    var k=0;\n    finalArr[i] = [];\n    var temp1=[];\n    for (var j=0;j<msg.hourlydata.length;j++) {\n        if (msg.hourlydata[j].AlertKey===msg.payload.alerts.lookup[i].JOB_NAME) {\n            msg.hourlydata[j][\"JobGroup\"]=msg.payload.alerts.lookup[i].JOB_GROUP;\n            finalArr[i][k]=msg.hourlydata[j];\n            //msg.hourlydata.splice(j, 1);\n            k++;\n        } else {\n            msg.hourlydata[j][\"JobGroup\"]=\"iLA\";\n            temp1.push(msg.hourlydata[j]);\n        }\n    }\n    msg.hourlydata = temp1;\n    if (finalArr[i].length !== 0) {\n        hourlyAlertArray.push(finalArr[i]);\n    }\n}\n\nvar x = {},y=temp1;\nvar i = y.length;\n//var newArr=[];\nwhile(i--) {\n    var sHash = y[i].AlertKey.toString();\n    if (typeof(x[sHash]) == \"undefined\") \n        x[sHash] = [];\n    x[sHash].push(y[i]);\n}\nvar hourlyNoGroup=[];\nfor(var key in x) {\n    hourlyNoGroup.push(x[key]);\n}\nhourlyAlertArray =hourlyAlertArray.concat(hourlyNoGroup);\nmsg.hourlyAlertData=hourlyAlertArray;\n\n\n//for dailydata array\nvar finalArr1=new Array([]),\n    dailyAlertArray= [];\nfor (var i=0;i<msg.payload.alerts.lookup.length;i++) {\n    var k=0;\n    finalArr1[i] = [];\n    var temp=[];\n    for (var j=0;j<msg.dailydata.length;j++) {\n        if (msg.dailydata[j].AlertKey===msg.payload.alerts.lookup[i].JOB_NAME) {\n            msg.dailydata[j][\"JobGroup\"]=msg.payload.alerts.lookup[i].JOB_GROUP;\n            finalArr1[i][k]=msg.dailydata[j];\n            //delete temp[j];\n            k++;\n        } else {\n            msg.dailydata[j][\"JobGroup\"]=\"iLA\";\n            temp.push(msg.dailydata[j]);\n        }\n    }\n    msg.dailydata = temp;\n    if (finalArr1[i].length !== 0) {\n        dailyAlertArray.push(finalArr1[i]);\n    }\n\n}\n/*var temp=msg.dailydata,\nnewtemp=msg.dailydata;\nfor (var i=0;i<temp;i++) {\n    for (var j=0;j<tempVar;j++) {\n        if(temp[i].AlertKey===tempVar[j]) {\n            newtemp.splice(i,1);\n        }\n    }\n}*/\n\nvar x = {},y=temp;\nvar i = y.length;\n//var newArr=[];\nwhile(i--) {\n    var sHash = y[i].AlertKey.toString();\n    if (typeof(x[sHash]) == \"undefined\") \n        x[sHash] = [];\n    x[sHash].push(y[i]);\n}\nvar dailyNoGroup=[];\nfor(var key in x) {\n    dailyNoGroup.push(x[key]);\n}\ndailyAlertArray =dailyAlertArray.concat(dailyNoGroup);\nmsg.dailyAlertData=dailyAlertArray;\nmsg.dailyUniqueCount=dailyAlertArray.length;\nmsg.hourlyUniqueCount=hourlyAlertArray.length;\n\nif (msg.req.url===\"/alertDashboard\"){\n    return [msg,null,null]\n} else if(msg.req.url===\"/showdailystatus\") {\n    return [null,msg,null]\n} else if(msg.req.url===\"/showhourlydata\") {\n    return [null,null,msg]\n} \n}\n\n",
+        "outputs": "3",
+        "noerr": 0,
+        "x": 786.9573974609375,
+        "y": 54.83807373046875,
+        "wires": [
+            [
+                "916e95a0.068558"
+            ],
+            [
+                "1575cdf1.3564f2"
+            ],
+            [
+                "1a623971.3f7dd7"
+            ]
+        ]
+    },
+    {
+        "id": "350c68fe.633658",
+        "type": "http in",
+        "z": "ca23f017.a3529",
+        "name": "showdailystatus",
+        "url": "/showdailystatus",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 85,
+        "y": 111.23297119140625,
+        "wires": [
+            [
+                "f4f5efb.32ecc1",
+                "3b54eb7c.48ff44"
+            ]
+        ]
+    },
+    {
+        "id": "5ea1e5a9.4c940c",
+        "type": "template",
+        "z": "ca23f017.a3529",
+        "name": "daily-status",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html> \n<html>\n    <head>\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n    </head>\n<body>\n    <div class=\"container-fluid\">\n        <div class=\"row dashboard-title\">\n            <h1>Alerts Dashboard</h1>\n        </div>\n        {{#dailyAlert.length}}\n        <div class=\"\">\n            <table class=\"table table-bordered alert-table\">\n                <tr>\n                    <th>AlertKey</th>\n                    <th>Group</th>\n                    <th>Count</th>\n                    <th>Last Occurence</th>\n                    <th class=\"message-head\">Message</th>\n                </tr>\n        {{#dailyAlert}}\n        <tr>\n            <td>{{AlertKey}}</td>\n            <td>{{JobGroup}}</td>\n            <td>{{Count}}</td>\n            <td>{{AlertDate}}</td>\n            <td class=\"message-head\"><span class=\"hasTooltip\">{{Message}}<p>{{Message}}</p></span></td>\n            \n        </tr>\n    {{/dailyAlert}}\n    </table>\n    </div>\n    {{/dailyAlert.length}}\n    {{^dailyAlert.length}}\n        <h2>No Alerts to show!</h2>\n    {{/dailyAlert.length}}\n    </div>\n</body>\n</html>",
+        "x": 1225,
+        "y": 110.23297119140625,
+        "wires": [
+            [
+                "b8c05c36.22c0b"
+            ]
+        ]
+    },
+    {
+        "id": "ae87e0c5.6dca8",
+        "type": "template",
+        "z": "ca23f017.a3529",
+        "name": "hourly-status",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html> \n<html>\n    <head>\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n\n    </head>\n<body>\n    <div class=\"row dashboard-title\">\n        <h1>Alerts Dashboard</h1>\n    </div>\n    {{#hourlyAlert.length}}\n        <div class=\"\">\n            <table class=\"table table-bordered alert-table\">\n                <tr>\n                    <th>AlertKey</th>\n                    <th>Group</th>\n                    <th>Count</th>\n                    <th>Last Occurence</th>\n                    <th class=\"message-head\">Message</th>\n                </tr>\n        {{#hourlyAlert}}\n        <tr>\n            <td>{{AlertKey}}</td>\n            <td>{{JobGroup}}</td>\n            <td>{{Count}}</td>\n            <td>{{AlertDate}}</td>\n            <td class=\"message-head\"><span class=\"hasTooltip\">{{Message}}<p>{{Message}}</p></span></td>\n        </tr>\n    {{/hourlyAlert}}\n    </table>\n    </div>\n    {{/hourlyAlert.length}}\n    {{^hourlyAlert.length}}\n        <h2>No Alerts to show!</h2>\n    {{/hourlyAlert.length}}\n</body>\n</html>",
+        "x": 1041,
+        "y": 225.23297119140625,
+        "wires": [
+            [
+                "b8c05c36.22c0b"
+            ]
+        ]
+    },
+    {
+        "id": "1f4e6792.c67d98",
+        "type": "http in",
+        "z": "ca23f017.a3529",
+        "name": "showhourlystatus",
+        "url": "/showhourlydata",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 85,
+        "y": 193.23297119140625,
+        "wires": [
+            [
+                "f4f5efb.32ecc1",
+                "3b54eb7c.48ff44"
+            ]
+        ]
+    },
+    {
+        "id": "184e27aa.a32df8",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "",
+        "func": "//msg.identifyGroup=msg.payload;\nmsg.identifier=\"jobLookup\";\nreturn msg;",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 775,
+        "y": 157.23297119140625,
+        "wires": [
+            [
+                "11818230.e7f19e"
+            ]
+        ]
+    },
+    {
+        "id": "26d30c49.d69674",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "",
+        "func": "msg.identifier=\"jobAlerts\";\nreturn msg;",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 592,
+        "y": 57.23297119140625,
+        "wires": [
+            [
+                "11818230.e7f19e"
+            ]
+        ]
+    },
+    {
+        "id": "1575cdf1.3564f2",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "",
+        "func": "var dailyAlert=[];\nfor (var i=0;i<msg.dailyAlertData.length;i++){\n    msg.dailyAlertData[i][0][\"Count\"]=msg.dailyAlertData[i].length;\n    dailyAlert.push(msg.dailyAlertData[i][0]);\n\n}\n\ndailyAlert.sort(function(a, b){\n    return b.Count-a.Count\n});\nmsg.dailyAlert=dailyAlert;\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1049.5056762695312,
+        "y": 81.47158813476562,
+        "wires": [
+            [
+                "5ea1e5a9.4c940c"
+            ]
+        ]
+    },
+    {
+        "id": "1a623971.3f7dd7",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "",
+        "func": "var hourlyAlert=[];\nfor (var i=0;i<msg.hourlyAlertData.length;i++){\n    msg.hourlyAlertData[i][0][\"Count\"]=msg.hourlyAlertData[i].length;\n    hourlyAlert.push(msg.hourlyAlertData[i][0]);\n\n}\nhourlyAlert.sort(function(a, b){\n    return b.Count-a.Count\n});\nmsg.hourlyAlert=hourlyAlert;\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 625.5084838867188,
+        "y": 196.47158813476562,
+        "wires": [
+            [
+                "ae87e0c5.6dca8"
+            ]
+        ]
+    },
+    {
+        "id": "32dff273.7ad12e",
+        "type": "template",
+        "z": "ca23f017.a3529",
+        "name": "dateRangeData",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html> \n<html>\n    <head>\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n    </head>\n<body>\n    <div class=\"container-fluid\">\n        <div class=\"row dashboard-title\">\n            <h1>Alerts Dashboard</h1>\n        </div>\n        {{#dailyAlert.length}}\n        <div class=\"\">\n            <table class=\"table table-bordered alert-table\">\n                <tr>\n                    <th>AlertKey</th>\n                    <th>Group</th>\n                    <th>Count</th>\n                    <th>Last Occurence</th>\n                    <th>Severity</th>\n                    <th class=\"message-head\">Message</th>\n                </tr>\n        {{#dailyAlert}}\n        <tr>\n            <td>{{AlertKey}}</td>\n            <td>{{JobGroup}}</td>\n            <td>{{Count}}</td>\n            <td>{{AlertDate}}</td>\n            <td>{{Severity}}</td>\n            <td class=\"message-head\"><span class=\"hasTooltip\">{{Message}}<p>{{Message}}</p></span></td>\n            \n        </tr>\n    {{/dailyAlert}}\n    </table>\n    </div>\n    {{/dailyAlert.length}}\n    {{^dailyAlert.length}}\n        <h2>No Alerts to show!</h2>\n    {{/dailyAlert.length}}\n    </div>\n</body>\n</html>",
+        "x": 1366,
+        "y": 315.23297119140625,
+        "wires": [
+            [
+                "b8c05c36.22c0b"
+            ]
+        ]
+    },
+    {
+        "id": "c220697.0bea598",
+        "type": "http in",
+        "z": "ca23f017.a3529",
+        "name": "getUrl",
+        "url": "/dateSelect",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 55,
+        "y": 383.23297119140625,
+        "wires": [
+            [
+                "e5258d1b.b8683",
+                "cbe12a8b.9fc2a8"
+            ]
+        ]
+    },
+    {
+        "id": "8132200d.0dabc",
+        "type": "http request",
+        "z": "ca23f017.a3529",
+        "name": "alertsJson",
+        "method": "GET",
+        "ret": "obj",
+        "url": "",
+        "tls": "",
+        "x": 466,
+        "y": 384,
+        "wires": [
+            [
+                "fe27e12e.5a87a"
+            ]
+        ]
+    },
+    {
+        "id": "e5258d1b.b8683",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "",
+        "func": "var msgurl=msg.req.url,\nfinalUrl=msgurl.substring(msgurl.indexOf(\"?\") + 0);\nmsg.url=\"http://app:81/dashboard/alerts/api\"+finalUrl;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 254,
+        "y": 385,
+        "wires": [
+            [
+                "8132200d.0dabc"
+            ]
+        ]
+    },
+    {
+        "id": "fe27e12e.5a87a",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "",
+        "func": "msg.identifier=\"jobAlerts\";\nreturn msg;",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 686,
+        "y": 384,
+        "wires": [
+            [
+                "668202a.9e1a1fc"
+            ]
+        ]
+    },
+    {
+        "id": "668202a.9e1a1fc",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "",
+        "func": "if (!context.data){\n   context.data = {\n       alerts: {}\n   };\n} \nif(msg.identifier === \"jobAlerts\"){\n    context.data.alerts.jobalerts = msg.payload;\n} else {\n    context.data.alerts.lookup = msg.payload;\n}\n\nif(context.data.alerts.jobalerts && context.data.alerts.lookup){\n     msg.payload = context.data;\n     context.data = null;\n     //for homepage alertdashboard\n    msg.dateData=msg.payload.alerts.jobalerts;\n    msg.payload.alerts.lookup=JSON.parse(msg.payload.alerts.lookup);\n\n  /**removing dupliacte entries from lookup***/\n  Array.prototype.remove = function(from, to) {\n  var rest = this.slice((to || from) + 1 || this.length);\n  this.length = from < 0 ? this.length + from : from;\n  return this.push.apply(this, rest);\n};\nfor (var i=0;i<msg.payload.alerts.lookup.length;i++) {\n    for(var j=i+1;j<msg.payload.alerts.lookup.length;j++){\n        if(i!=j && (msg.payload.alerts.lookup[i].JOB_NAME == msg.payload.alerts.lookup[j].JOB_NAME)){\n           //delete  msg.payload.alerts.lookup[j];\n           msg.payload.alerts.lookup.remove(j);\n        }\n    }\n}\n//for datedata array\nvar finalArr1=new Array([]),\n    datedataArray= [];\n    for (var i=0;i<msg.payload.alerts.lookup.length;i++) {\n        var k=0;\n        finalArr1[i] = [];\n        var temp=[];\n        for (var j=0;j<msg.dateData.length;j++) {\n            if (msg.dateData[j].AlertKey===msg.payload.alerts.lookup[i].JOB_NAME) {\n                msg.dateData[j][\"JobGroup\"]=msg.payload.alerts.lookup[i].JOB_GROUP;\n                finalArr1[i][k]=msg.dateData[j];\n                //delete temp[j];\n                k++;\n            } else {\n                msg.dateData[j][\"JobGroup\"]=\"iLA\";\n                temp.push(msg.dateData[j]);\n            }\n        }\n        msg.dateData = temp;\n        if (finalArr1[i].length !== 0) {\n            datedataArray.push(finalArr1[i]);\n        }\n\n    }\n\nvar x = {},y=temp;\nvar i = y.length;\n//var newArr=[];\nwhile(i--) {\n    var sHash = y[i].AlertKey.toString();\n    if (typeof(x[sHash]) == \"undefined\") \n        x[sHash] = [];\n    x[sHash].push(y[i]);\n}\nvar dateNoGroup=[];\nfor(var key in x) {\n    dateNoGroup.push(x[key]);\n}\ndatedataArray =datedataArray.concat(dateNoGroup);\nmsg.datedataArray=datedataArray;\n\n\nreturn msg;\n}\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 937,
+        "y": 372,
+        "wires": [
+            [
+                "ef077013.1452e"
+            ]
+        ]
+    },
+    {
+        "id": "ef077013.1452e",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "",
+        "func": "var dateAlert=[];\nfor (var i=0;i<msg.datedataArray.length;i++){\n    msg.datedataArray[i][0][\"Count\"]=msg.datedataArray[i].length;\n    dateAlert.push(msg.datedataArray[i][0]);\n\n}\nvar majorAlert=[],minorAlert=[];\nfor (var i=0;i<dateAlert.length;i++) {\n    if(dateAlert[i][\"Severity\"]===\"major\") {\n        majorAlert.push(dateAlert[i]);\n    } else if(dateAlert[i][\"Severity\"]===\"minor\") {\n        minorAlert.push(dateAlert[i]);\n\n    }\n}\nmajorAlert.sort(function(a, b){\n    return b.Count-a.Count\n});\nminorAlert.sort(function(a, b){\n    return b.Count-a.Count\n});\ndateAlert.sort(function(a, b){\n    return b.Count-a.Count\n});\nmsg.dailyAlert=majorAlert.concat(minorAlert);\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1132,
+        "y": 330,
+        "wires": [
+            [
+                "32dff273.7ad12e"
+            ]
+        ]
+    },
+    {
+        "id": "cbe12a8b.9fc2a8",
+        "type": "http request",
+        "z": "ca23f017.a3529",
+        "name": "getJobGroup",
+        "method": "GET",
+        "ret": "txt",
+        "url": "http://app:81/dashboard/job/lookup",
+        "tls": "",
+        "x": 327,
+        "y": 282,
+        "wires": [
+            [
+                "c3ba2477.854438"
+            ]
+        ]
+    },
+    {
+        "id": "c3ba2477.854438",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "",
+        "func": "//msg.identifyGroup=msg.payload;\nmsg.identifier=\"jobLookup\";\nreturn msg;",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 677,
+        "y": 286,
+        "wires": [
+            [
+                "668202a.9e1a1fc"
+            ]
+        ]
+    },
+    {
+        "id": "b8c05c36.22c0b",
+        "type": "function",
+        "z": "ca23f017.a3529",
+        "name": "No Cache",
+        "func": "msg.headers={\n    \"Cache-Control\":\"no-cache, no-store, must-revalidate\",\n    \"Pragma\":\"no-cache\",\n    \"Expires\":\"0\"\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1473,
+        "y": 102,
+        "wires": [
+            [
+                "89e1b22a.b5d7c"
+            ]
+        ]
+    },
+    {
+        "id": "daca49b.eb182b8",
+        "type": "http in",
+        "z": "556c4c4b.054284",
+        "name": "testApp",
+        "url": "/test-app",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 58.00000762939453,
+        "y": 162.9999828338623,
+        "wires": [
+            [
+                "9641751a.7cfde8",
+                "9403701b.37fd3"
+            ]
+        ]
+    },
+    {
+        "id": "ec93a79a.ecb238",
+        "type": "http response",
+        "z": "556c4c4b.054284",
+        "name": "",
+        "x": 1074.500020980835,
+        "y": 227.44443225860596,
+        "wires": []
+    },
+    {
+        "id": "b6fdd481.3e26f8",
+        "type": "template",
+        "z": "556c4c4b.054284",
+        "name": "MainPage",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html> \n<html>\n<head>\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <meta http-equiv=\"refresh\" content=\"1000000\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n\n    \n    </head>\n    <body class=\"alert-homepage\">\n            <div class=\"container-fluid\">\n                <div class=\"row dashboard-title\">\n                    <h1>Jobs Status Dashboard</h1>\n                </div>\n                <div class=\"row\">\n                    <div class=\"col-sm-6\">\n                        <a href=\"/showjobdata\" id=\"hourlyBox\" target=\"_blank\">\n\n                            <div class=\"status-box {{jobsStatus}}\">\n                                <p>Nightly Jobs Status</p>\n                                <p>Jobs Executed: {{jobsExecuted}}/{{totalLookupJobs}} </p>\n                                <p>Percentage Completion {{percentCompletion}}%</p>\n                                <div class=\"progress\">\n                                  <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow={{jobsExecuted}}\n                                  aria-valuemin=\"0\" aria-valuemax={{totalLookupJobs}} style=\"width:{{percentCompletion}}%\">\n                                    <span class=\"sr-only\">70% Complete</span>\n                                  </div>\n                                </div>\n                            </div>\n                        </a>\n                    </div>\n                    <div class=\"col-sm-6\">\n                        \n                    </div>\n                </div>\n            </div>\n\n    </body>\n   \n</html>\n",
+        "x": 741.6666793823242,
+        "y": 117.99999809265137,
+        "wires": [
+            [
+                "7b76d29e.afbc9c"
+            ]
+        ]
+    },
+    {
+        "id": "45090b43.d31494",
+        "type": "http in",
+        "z": "556c4c4b.054284",
+        "name": "showjobdata",
+        "url": "/showjobdata",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 75,
+        "y": 328.55556869506836,
+        "wires": [
+            [
+                "9641751a.7cfde8",
+                "9403701b.37fd3"
+            ]
+        ]
+    },
+    {
+        "id": "e3647657.857f38",
+        "type": "template",
+        "z": "556c4c4b.054284",
+        "name": "JobsTable",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html> \n<html>\n    <head>\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n    <link rel=\"stylesheet\" href=\"/assets/main.css\">\n    </head>\n<body>\n    <div class=\"container-fluid\">\n        <div class=\"row dashboard-title\">\n            <h1>Jobs Dashboard</h1>\n        </div>\n        {{#dailyAlert.length}}\n        <div class=\"\">\n            <table class=\"table table-bordered alert-table\">\n                <tr>\n                    <th>job_name</th>\n                    <th>server_name</th>\n                    <th>start_time</th>\n                    <th>end_time</th>\n                    <th>status</th>\n                    <th>description</th>\n                    <th>job_group</th>\n                   <!-- <th class=\"message-head\">Message</th>-->\n                </tr>\n        {{#dailyAlert}}\n        <tr>\n            <td>{{JOB_NAME}}</td>\n            <td>{{SERVER_NAME}}</td>\n            <td>{{START_TIME}}</td>\n            <td>{{END_TIME}}</td>\n        \t<td>{{STATUS}}</td>\n        \t{{#LOOKUP}}\n        \t<td>{{DESCRIPTION}}</td>\n        \t<td>{{JOB_GROUP}}</td>\n        \t{{/LOOKUP}}\n            <!--<td class=\"message-head\"><span class=\"hasTooltip\">{{Message}}<p>{{Message}}</p></span></td>-->\n            \n        </tr>\n    {{/dailyAlert}}\n    </table>\n    </div>\n    {{/dailyAlert.length}}\n    {{^dailyAlert.length}}\n        <h2>No Alerts to show!</h2>\n    {{/dailyAlert.length}}\n    </div>\n</body>\n</html>",
+        "x": 739.111083984375,
+        "y": 363.11111068725586,
+        "wires": [
+            [
+                "7b76d29e.afbc9c"
+            ]
+        ]
+    },
+    {
+        "id": "4f614925.ceb618",
+        "type": "function",
+        "z": "556c4c4b.054284",
+        "name": "",
+        "func": "var dailyAlert=[];\nfor (var i=0;i<msg.jobsData.length;i++){\n    //msg.jobsData[i][0][\"Count\"]=msg.jobsData[i].length;\n    dailyAlert.push(msg.jobsData[i][0]);\n\n}\n/*dailyAlert.sort(function(a, b){\n    return b.Count-a.Count\n});*/\nmsg.dailyAlert=dailyAlert;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 620.3333740234375,
+        "y": 282.33337020874023,
+        "wires": [
+            [
+                "e3647657.857f38"
+            ]
+        ]
+    },
+    {
+        "id": "7b76d29e.afbc9c",
+        "type": "function",
+        "z": "556c4c4b.054284",
+        "name": "No Cache",
+        "func": "msg.headers={\n    \"Cache-Control\":\"no-cache, no-store, must-revalidate\",\n    \"Pragma\":\"no-cache\",\n    \"Expires\":\"0\"\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 883.3333892822266,
+        "y": 213.1110782623291,
+        "wires": [
+            [
+                "ec93a79a.ecb238"
+            ]
+        ]
+    },
+    {
+        "id": "9641751a.7cfde8",
+        "type": "http request",
+        "z": "556c4c4b.054284",
+        "name": "JobStatus",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://app:81/dashboard/job/api?type=NIGHTLY",
+        "tls": "",
+        "x": 205.6666717529297,
+        "y": 58,
+        "wires": [
+            [
+                "9ff7ed3d.467c2"
+            ]
+        ]
+    },
+    {
+        "id": "9403701b.37fd3",
+        "type": "http request",
+        "z": "556c4c4b.054284",
+        "name": "nightlyLookup",
+        "method": "GET",
+        "ret": "obj",
+        "url": "http://app:81/dashboard/job/lookup?type=NIGHTLY",
+        "tls": "",
+        "x": 272.44447326660156,
+        "y": 233.11111068725586,
+        "wires": [
+            [
+                "9799d2e7.a7a8f"
+            ]
+        ]
+    },
+    {
+        "id": "9ff7ed3d.467c2",
+        "type": "function",
+        "z": "556c4c4b.054284",
+        "name": "addJobStatusIdentifier",
+        "func": "msg.identifier = 'nightlyStatus';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 421.94439697265625,
+        "y": 107.33332824707031,
+        "wires": [
+            [
+                "f1139c57.2eb46"
+            ]
+        ]
+    },
+    {
+        "id": "f1139c57.2eb46",
+        "type": "function",
+        "z": "556c4c4b.054284",
+        "name": "payloadHandler",
+        "func": "if (!context.data){\n   context.data = {\n       nightly: {}\n   };\n} \nif(msg.identifier === \"nightlyStatus\"){\n    context.data.nightly.status = msg.payload;\n} else {\n    context.data.nightly.lookups = msg.payload;\n}\nif(context.data.nightly.status && context.data.nightly.lookups){\n     msg.payload = context.data;\n     context.data = null;\n\nvar finalArr=new Array([]),\nfinalArray= [];\nfor (var i=0;i<msg.payload.nightly.lookups.length;i++){\n    var k=0;\n    finalArr[i] = [];\n    for (var j=0;j<msg.payload.nightly.status.length;j++){\n        if(msg.payload.nightly.lookups[i].JOB_NAME===msg.payload.nightly.status[j].LOOKUP[0].JOB_NAME){\n            finalArr[i][k]=msg.payload.nightly.status[j];\n            k++;\n        }\n    }\n    if(finalArr[i].length !== 0){\n        finalArray.push(finalArr[i]);\n    }\n}\nfor (var i=0;i<finalArray.length;i++){\n    if(finalArray[i][0].STATUS===\"FAILURE\"){\n        msg.jobsStatus=\"failed\";\n    } else msg.jobsStatus=\"success\";\n}\nmsg.jobsData=finalArray;\nmsg.jobsExecuted=finalArray.length;\nmsg.totalLookupJobs=msg.payload.nightly.lookups.length;\nmsg.percentCompletion=Math.round((msg.jobsExecuted/msg.totalLookupJobs)*100);\n\nif (msg.req.url===\"/showjobdata\"){\n    return [null,msg]\n} else {\n    return [msg,null]\n} \n}",
+        "outputs": "2",
+        "noerr": 0,
+        "x": 569.0555648803711,
+        "y": 207.11110305786133,
+        "wires": [
+            [
+                "b6fdd481.3e26f8"
+            ],
+            [
+                "4f614925.ceb618"
+            ]
+        ]
+    },
+    {
+        "id": "9799d2e7.a7a8f",
+        "type": "function",
+        "z": "556c4c4b.054284",
+        "name": "addlookupIdentifier",
+        "func": "msg.identifier = 'nightlyLookups';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 413.6111145019531,
+        "y": 298.222225189209,
+        "wires": [
+            [
+                "f1139c57.2eb46"
+            ]
+        ]
+    },
+    {
+        "id": "ae5ac3cd.49572",
+        "type": "http in",
+        "z": "87759769.25c5a8",
+        "name": "Home Page",
+        "url": "/",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 169.5,
+        "y": 118,
+        "wires": [
+            [
+                "bfdc990c.587b78"
+            ]
+        ]
+    },
+    {
+        "id": "bfdc990c.587b78",
+        "type": "template",
+        "z": "87759769.25c5a8",
+        "name": "Home Page Template",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "Under Construction",
+        "x": 380.5,
+        "y": 126,
+        "wires": [
+            [
+                "e675c94f.d7d098"
+            ]
+        ]
+    },
+    {
+        "id": "e675c94f.d7d098",
+        "type": "http response",
+        "z": "87759769.25c5a8",
+        "name": "",
+        "x": 575.5,
+        "y": 126,
+        "wires": []
+    }
+]
