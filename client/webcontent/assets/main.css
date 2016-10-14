@@ -98,11 +98,44 @@ a:hover,a:focus{
         white-space: normal;
         overflow: auto;
     }
+
+    .date-picker label {
+        display: block;
+        width: 100%;
+    }
+
+    #getData {
+        display: inherit;
+    }
+
+    .date-picker p {
+        display: block;
+    }
+}
+
+
+.date-picker {
+    margin: 0 auto;
+    width: 75%;
+}
+.hasDatepicker {
+    width:76%;
+    background: url(/assets/images/calendar.png);
+    /* float: right; */
+    background-repeat: no-repeat;
+    background-position-x: right;
+}
+.date-picker label{
+    float:left;
+    width:32%;
 }
 
 .date-picker p {
+    width: 90%;
+    display: inline-block;
     font-size: 0.6em;
 }
+
 div.ui-datepicker{ font-size:0.5em; }
 
 #dateButton {
@@ -110,32 +143,46 @@ div.ui-datepicker{ font-size:0.5em; }
     padding: 5px;
 
 }
+
 #dateButton:hover {
     text-decoration: none;
     background-color: #337ab7;
     color: white;
 }
+
 #hourlyBox:hover .status-box {
     background-color: #48a529;
     color:black;
     font-weight: bold;
 }
+
 #hourlyBox:hover .status-box h2 {
     font-weight: bold;
 }
+
 #dailyBox:hover .status-box {
     background-color: #ef680e;
     color:black;
     font-weight: bold;
 }
+
 #dailyBox:hover .status-box h2 {
     font-weight: bold;
 }
+
 #getData {
     text-decoration: none;
     background-color: #337ab7;
     color: white;
+    display: inline-block;
+    margin-top: 7px;
 }
+
 .data-col {
     margin-bottom: 15px;
 }
+
+.select-type {
+    padding: 3px;
+    width:71%;
+}       
