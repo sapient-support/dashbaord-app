@@ -88,46 +88,23 @@ a:hover,a:focus{
     padding-bottom:1px;
 }
 
-@media only screen and (max-device-width: 768px){
-
-    .alert-table {
-        table-layout: auto;
-    }
-
-    .alert-table td {
-        white-space: normal;
-        overflow: auto;
-    }
-
-    .date-picker label {
-        display: block;
-        width: 100%;
-    }
-
-    #getData {
-        display: inherit;
-    }
-
-    .date-picker p {
-        display: block;
-    }
-}
-
-
 .date-picker {
     margin: 0 auto;
     width: 75%;
+    font-size: 0.7em;
 }
 .hasDatepicker {
-    width:76%;
+    width:85%;
+    /*line-height: normal;*/
     background: url(/assets/images/calendar.png);
     /* float: right; */
     background-repeat: no-repeat;
     background-position-x: right;
+    background-size: contain;
 }
 .date-picker label{
     float:left;
-    width:32%;
+    width:100%;
 }
 
 .date-picker p {
@@ -176,6 +153,7 @@ div.ui-datepicker{ font-size:0.5em; }
     color: white;
     display: inline-block;
     margin-top: 7px;
+    font-size: 1.3em;
 }
 
 .data-col {
@@ -184,5 +162,34 @@ div.ui-datepicker{ font-size:0.5em; }
 
 .select-type {
     padding: 3px;
-    width:71%;
+    width:85%;
 }       
+
+
+@media only screen and (max-device-width: 768px){
+
+    .alert-table {
+        table-layout: auto;
+    }
+
+    .alert-table td {
+        white-space: normal;
+        overflow: auto;
+    }
+
+    .date-picker label {
+        display: block;
+        width: 100%;
+    }
+
+    
+    .date-picker p {
+        display: block;
+    }
+    .hasDatepicker {
+        width: 70%;
+    }
+    .select-type {
+        width:70%;
+    }
+}
