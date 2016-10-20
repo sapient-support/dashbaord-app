@@ -51,8 +51,8 @@
         "type": "mail-parse",
         "z": "52d0814f.a62c2",
         "name": "Parse Mail",
-        "x": 283,
-        "y": 73,
+        "x": 292,
+        "y": 71,
         "wires": [
             [
                 "1402804b.acc43"
@@ -68,8 +68,8 @@
         "func": "    msg.payload = msg.attachments[0].content;\n    return msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 500,
-        "y": 67,
+        "x": 515,
+        "y": 64,
         "wires": [
             [
                 "3bc05eb6.d21b22"
@@ -131,11 +131,11 @@
         "type": "function",
         "z": "52d0814f.a62c2",
         "name": "Add MongoDB ID",
-        "func": "msg._id=msg.payload.UNIQUE_ID;\nif(typeof msg.payload.START_TIME!=\"undefined\"){\n    var stringDate = msg.payload.START_TIME.trim();\n    var splitDate=stringDate.split(\" \");\n    var dateString= splitDate[2]+\" \"+ splitDate[1]+\" \" +splitDate[5]+\" \" +splitDate[3];\n    msg.payload.START_TIME=new Date(dateString);\n}\nif(typeof msg.payload.END_TIME!=\"undefined\"){\n    var stringDate = msg.payload.END_TIME.trim();\n    var splitDate=stringDate.split(\" \");\n    var dateString= splitDate[2]+\" \"+ splitDate[1]+\" \" +splitDate[5]+\" \" +splitDate[3];\n    msg.payload.END_TIME=new Date(dateString);\n}\nreturn msg;",
+        "func": "msg._id=msg.payload.UNIQUE_ID;\nif(typeof msg.payload.START_TIME!=\"undefined\"){\n    var stringDate = msg.payload.START_TIME.trim();\n\tvar date = new Date(stringDate);\n\tvar utcDate= new Date();\n\tutcDate.setUTCDate(date.getDate());\n\tutcDate.setUTCHours(date.getHours());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCSeconds(date.getSeconds());\n    msg.payload.START_TIME=utcDate;\n}\nif(typeof msg.payload.END_TIME!=\"undefined\"){\n    var stringDate = msg.payload.END_TIME.trim();\n\tvar date = new Date(stringDate);\n\tvar utcDate= new Date();\n\tutcDate.setUTCDate(date.getDate());\n\tutcDate.setUTCHours(date.getHours());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCSeconds(date.getSeconds());\n    msg.payload.END_TIME=utcDate;\n}\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "x": 590,
-        "y": 200,
+        "y": 216,
         "wires": [
             [
                 "fb2eb20e.57851"
@@ -154,8 +154,8 @@
         "box": "JOBS",
         "disposition": "Delete",
         "repeat": "3000",
-        "x": 100,
-        "y": 60,
+        "x": 93,
+        "y": 71,
         "wires": [
             [
                 "140f6e7c.e69bc2"
@@ -223,8 +223,8 @@
         "func": "msg.payload.JOB_NAME=\"PROD_\"+msg.payload.JOB_NAME;\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 659,
-        "y": 373,
+        "x": 662,
+        "y": 370,
         "wires": [
             [
                 "44f91364.a9ba9c"
@@ -242,7 +242,7 @@
         "upsert": false,
         "multi": false,
         "operation": "store",
-        "x": 680,
+        "x": 731,
         "y": 490,
         "wires": []
     },
