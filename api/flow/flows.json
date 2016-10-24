@@ -220,7 +220,7 @@
         "type": "function",
         "z": "52d0814f.a62c2",
         "name": "Convert Prod Job",
-        "func": "msg.payload.JOB_NAME=\"PROD_\"+msg.payload.JOB_NAME;\nreturn msg;",
+        "func": "msg.payload.JOB_NAME=\"PROD_\"+msg.payload.JOB_NAME;\nmsg._id=msg.payload.JOB_NAME;\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "x": 662,
