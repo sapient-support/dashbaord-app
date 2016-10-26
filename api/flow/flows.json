@@ -434,76 +434,6 @@
         ]
     },
     {
-        "id": "59f9806f.c62a8",
-        "type": "http in",
-        "z": "ec253f80.0c828",
-        "name": "Request",
-        "url": "/dashboard/job/api",
-        "method": "get",
-        "swaggerDoc": "",
-        "x": 83,
-        "y": 38,
-        "wires": [
-            [
-                "c7cb0041.7e474"
-            ]
-        ]
-    },
-    {
-        "id": "ccceca9a.019d58",
-        "type": "mongodb in",
-        "z": "ec253f80.0c828",
-        "mongodb": "6965698a.7d1898",
-        "name": "Get Data",
-        "collection": "controlm-jobs",
-        "operation": "aggregate",
-        "x": 284,
-        "y": 43,
-        "wires": [
-            [
-                "5219506d.3b315"
-            ]
-        ]
-    },
-    {
-        "id": "464a01a1.1e20e",
-        "type": "http response",
-        "z": "ec253f80.0c828",
-        "name": "Reponse",
-        "x": 706,
-        "y": 47,
-        "wires": []
-    },
-    {
-        "id": "c7cb0041.7e474",
-        "type": "function",
-        "z": "ec253f80.0c828",
-        "name": "Set Fetch Properties",
-        "func": "var job_type=msg.payload.type;\nvar startDateVar=msg.payload.date;\nvar startDate= new Date();\nvar endDate= new Date();\nif(typeof job_type== \"undefined\"){\n    job_type=/.*.*/;\n}\nif(typeof startDateVar== \"undefined\"){\n    startDate.setUTCHours(startDate.getUTCHours()-24);startDate.setUTCHours(22);startDate.setUTCMinutes(30);\n\tendDate=new Date();\n}else{\n\tstartArr=startDateVar.split(\"/\");\n\tstartDate.setUTCDate(startArr[1]-1);\n\tstartDate.setUTCMonth(startArr[0]-1);\n\tstartDate.setYear(startArr[2]);\n\tendDate.setUTCDate(startArr[1]);\n\tendDate.setUTCMonth(startArr[0]-1);\n\tendDate.setYear(startArr[2]);\n\n\tstartDate.setUTCHours(22);\n\tstartDate.setUTCMinutes(30);\n\tstartDate.setUTCSeconds(0);\n\n\tendDate.setUTCHours(22);\n\tendDate.setUTCMinutes(30);\n\tendDate.setUTCSeconds(0);\n\t\n\t\n}\n\nmsg.payload=[\n    {\n      $lookup:\n     {\n       from: \"controlm-job-lookup\",\n       localField: \"JOB_NAME\",\n       foreignField: \"JOB_NAME\",\n       as: \"LOOKUP\"\n     }\n   },\n   { $match: {\"LOOKUP.JOB_GROUP\" : job_type, START_TIME: {$gt: startDate , $lt: endDate } } },\n   { $sort: { START_TIME: -1 }}\n];\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 246,
-        "y": 146,
-        "wires": [
-            [
-                "ccceca9a.019d58"
-            ]
-        ]
-    },
-    {
-        "id": "5219506d.3b315",
-        "type": "json",
-        "z": "ec253f80.0c828",
-        "name": "OBJECT",
-        "x": 521.5,
-        "y": 91,
-        "wires": [
-            [
-                "464a01a1.1e20e"
-            ]
-        ]
-    },
-    {
         "id": "588c0a6d.a55c14",
         "type": "http in",
         "z": "ec253f80.0c828",
@@ -512,7 +442,7 @@
         "method": "get",
         "swaggerDoc": "",
         "x": 79,
-        "y": 195,
+        "y": 48,
         "wires": [
             [
                 "94ed69be.071c88"
@@ -528,7 +458,7 @@
         "collection": "controlm-job-lookup",
         "operation": "find",
         "x": 280,
-        "y": 200,
+        "y": 53,
         "wires": [
             [
                 "7cd2c2a7.050c5c"
@@ -541,7 +471,7 @@
         "z": "ec253f80.0c828",
         "name": "Reponse",
         "x": 702,
-        "y": 204,
+        "y": 57,
         "wires": []
     },
     {
@@ -553,7 +483,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 242,
-        "y": 303,
+        "y": 156,
         "wires": [
             [
                 "b3fa246e.3b3108"
@@ -566,7 +496,7 @@
         "z": "ec253f80.0c828",
         "name": "OBJECT",
         "x": 517.5,
-        "y": 248,
+        "y": 101,
         "wires": [
             [
                 "6ab7161a.9f1648"
@@ -640,6 +570,124 @@
         "wires": [
             [
                 "e6cc12a6.c1799"
+            ]
+        ]
+    },
+    {
+        "id": "f196afa2.0c429",
+        "type": "http in",
+        "z": "ec253f80.0c828",
+        "name": "Request",
+        "url": "/dashboard/job/api",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 79,
+        "y": 256,
+        "wires": [
+            [
+                "c9d3270.244c4d8"
+            ]
+        ]
+    },
+    {
+        "id": "95634932.f2ae08",
+        "type": "mongodb in",
+        "z": "ec253f80.0c828",
+        "mongodb": "6965698a.7d1898",
+        "name": "Get Jobs",
+        "collection": "controlm-job-lookup",
+        "operation": "find",
+        "x": 325,
+        "y": 259,
+        "wires": [
+            [
+                "5966a840.675c18"
+            ]
+        ]
+    },
+    {
+        "id": "5c961476.f69bcc",
+        "type": "http response",
+        "z": "ec253f80.0c828",
+        "name": "Reponse",
+        "x": 767,
+        "y": 264,
+        "wires": []
+    },
+    {
+        "id": "c9d3270.244c4d8",
+        "type": "function",
+        "z": "ec253f80.0c828",
+        "name": "Get All JOB in Group",
+        "func": "var job_type=msg.payload.type;\nif(typeof job_type== \"undefined\"){\n    job_type=/.*.*/;\n}\nmsg.payload={JOB_GROUP: job_type};\nmsg.limit=0;\nmsg.skip=0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 169,
+        "y": 379,
+        "wires": [
+            [
+                "95634932.f2ae08"
+            ]
+        ]
+    },
+    {
+        "id": "232deaca.371546",
+        "type": "json",
+        "z": "ec253f80.0c828",
+        "name": "OBJECT",
+        "x": 722.5,
+        "y": 337,
+        "wires": [
+            [
+                "5c961476.f69bcc"
+            ]
+        ]
+    },
+    {
+        "id": "b3c7c33d.1cf1a",
+        "type": "function",
+        "z": "ec253f80.0c828",
+        "name": "Set Fetch Properties",
+        "func": "var job_type=msg.payload.type;\nvar startDateVar=msg.payload.date;\nvar startDate= new Date();\nvar endDate= new Date();\nvar job_array = msg.payload;\nif(typeof job_type== \"undefined\"){\n    job_type=/.*.*/;\n}\nif(typeof startDateVar== \"undefined\"){\n    startDate.setUTCHours(startDate.getUTCHours()-24);\n    startDate.setUTCHours(22);\n    startDate.setUTCMinutes(30);\n    startDate.setUTCSeconds(0);\n\tendDate=new Date();\n}else{\n\tstartArr=startDateVar.split(\"/\");\n\tstartDate.setUTCDate(startArr[1]-1);\n\tstartDate.setUTCMonth(startArr[0]-1);\n\tstartDate.setYear(startArr[2]);\n\tendDate.setUTCDate(startArr[1]);\n\tendDate.setUTCMonth(startArr[0]-1);\n\tendDate.setYear(startArr[2]);\n\n\tstartDate.setUTCHours(22);\n\tstartDate.setUTCMinutes(30);\n\tstartDate.setUTCSeconds(0);\n\n\tendDate.setUTCHours(22);\n\tendDate.setUTCMinutes(30);\n\tendDate.setUTCSeconds(0);\n\t\n\t\n}\nmsg.payload={JOB_NAME: {$in: job_array},START_TIME: {$gt: startDate , $lt: endDate } };\nmsg.sort={ START_TIME: -1 };\nmsg.limit=0;\nmsg.skip=0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 470,
+        "y": 455,
+        "wires": [
+            [
+                "e7bf36b8.ff6a98"
+            ]
+        ]
+    },
+    {
+        "id": "e7bf36b8.ff6a98",
+        "type": "mongodb in",
+        "z": "ec253f80.0c828",
+        "mongodb": "6965698a.7d1898",
+        "name": "Get Data",
+        "collection": "controlm-jobs",
+        "operation": "find",
+        "x": 715,
+        "y": 452,
+        "wires": [
+            [
+                "232deaca.371546"
+            ]
+        ]
+    },
+    {
+        "id": "5966a840.675c18",
+        "type": "function",
+        "z": "ec253f80.0c828",
+        "name": "Create Job Array",
+        "func": "var job_name = msg.payload;\nvar job_array =[];\n\nfor (i = 0; i < job_name.length; i++) { \n    job_array.push(job_name[i].JOB_NAME);\n}\nmsg.payload=job_array;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 539.5,
+        "y": 263,
+        "wires": [
+            [
+                "b3c7c33d.1cf1a"
             ]
         ]
     }
