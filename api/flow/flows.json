@@ -91,7 +91,7 @@
         "y": 216,
         "wires": [
             [
-                "b4429819.692b38"
+                "41fe4fab.80dd5"
             ]
         ]
     },
@@ -122,25 +122,9 @@
         "upsert": true,
         "multi": false,
         "operation": "store",
-        "x": 784.5,
-        "y": 217,
+        "x": 509.5,
+        "y": 519,
         "wires": []
-    },
-    {
-        "id": "b4429819.692b38",
-        "type": "function",
-        "z": "52d0814f.a62c2",
-        "name": "Add MongoDB ID",
-        "func": "msg._id=msg.payload.UNIQUE_ID;\nif(typeof msg.payload.START_TIME!=\"undefined\"){\n    var stringDate = msg.payload.START_TIME.trim();\n\tvar date = new Date(stringDate);\n\tvar utcDate= new Date();\n\tutcDate.setUTCDate(date.getDate());\n\tutcDate.setUTCHours(date.getHours());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCSeconds(date.getSeconds());\n    msg.payload.START_TIME=utcDate;\n}\nif(typeof msg.payload.END_TIME!=\"undefined\"){\n    var stringDate = msg.payload.END_TIME.trim();\n\tvar date = new Date(stringDate);\n\tvar utcDate= new Date();\n\tutcDate.setUTCDate(date.getDate());\n\tutcDate.setUTCHours(date.getHours());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCSeconds(date.getSeconds());\n    msg.payload.END_TIME=utcDate;\n}\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 590,
-        "y": 216,
-        "wires": [
-            [
-                "fb2eb20e.57851"
-            ]
-        ]
     },
     {
         "id": "bc5b2212.4f296",
@@ -153,9 +137,9 @@
         "port": "993",
         "box": "JOBS",
         "disposition": "Delete",
-        "repeat": "3000",
-        "x": 93,
-        "y": 71,
+        "repeat": "300000",
+        "x": 72,
+        "y": 72,
         "wires": [
             [
                 "140f6e7c.e69bc2"
@@ -169,8 +153,8 @@
         "name": "File",
         "filename": "D:/Book1.csv",
         "format": "utf8",
-        "x": 295,
-        "y": 369,
+        "x": 297,
+        "y": 994,
         "wires": [
             [
                 "8a32961e.1fe268"
@@ -188,8 +172,8 @@
         "repeat": "",
         "crontab": "",
         "once": false,
-        "x": 112,
-        "y": 371,
+        "x": 114,
+        "y": 996,
         "wires": [
             [
                 "c975455c.86d9e8"
@@ -207,8 +191,8 @@
         "multi": "one",
         "ret": "\\n",
         "temp": "JOB_NAME,DESCRIPTION,JOB_GROUP",
-        "x": 452,
-        "y": 371,
+        "x": 454,
+        "y": 996,
         "wires": [
             [
                 "8bd3b1a4.36645"
@@ -223,8 +207,8 @@
         "func": "msg.payload.JOB_NAME=\"PROD_\"+msg.payload.JOB_NAME;\nmsg._id=msg.payload.JOB_NAME;\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 662,
-        "y": 370,
+        "x": 664,
+        "y": 995,
         "wires": [
             [
                 "44f91364.a9ba9c"
@@ -242,8 +226,8 @@
         "upsert": false,
         "multi": false,
         "operation": "store",
-        "x": 731,
-        "y": 490,
+        "x": 733,
+        "y": 1115,
         "wires": []
     },
     {
@@ -441,8 +425,8 @@
         "url": "/dashboard/job/lookup",
         "method": "get",
         "swaggerDoc": "",
-        "x": 79,
-        "y": 48,
+        "x": 78,
+        "y": 56,
         "wires": [
             [
                 "94ed69be.071c88"
@@ -688,6 +672,54 @@
         "wires": [
             [
                 "b3c7c33d.1cf1a"
+            ]
+        ]
+    },
+    {
+        "id": "2b770922.b9e716",
+        "type": "function",
+        "z": "52d0814f.a62c2",
+        "name": "Add MongoDB ID",
+        "func": "msg._id=msg.csv.UNIQUE_ID;\nif(typeof msg.csv.START_TIME!=\"undefined\"){\n    var stringDate = msg.csv.START_TIME.trim();\n\tvar date = new Date(stringDate);\n\tvar utcDate= new Date();\n\tutcDate.setUTCDate(date.getDate());\n\tutcDate.setUTCHours(date.getHours());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCSeconds(date.getSeconds());\n    msg.csv.START_TIME=utcDate;\n}\nif(typeof msg.csv.END_TIME!=\"undefined\"){\n    var stringDate = msg.csv.END_TIME.trim();\n\tvar date = new Date(stringDate);\n\tvar utcDate= new Date();\n\tutcDate.setUTCDate(date.getDate());\n\tutcDate.setUTCHours(date.getHours());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCSeconds(date.getSeconds());\n    msg.csv.END_TIME=utcDate;\n}\n\nvar newObj= Object.assign({},msg.payload[0],msg.csv);\n\nmsg.payload=newObj;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 192,
+        "y": 507,
+        "wires": [
+            [
+                "fb2eb20e.57851"
+            ]
+        ]
+    },
+    {
+        "id": "eab51fea.454e2",
+        "type": "mongodb in",
+        "z": "52d0814f.a62c2",
+        "mongodb": "b4bc39b0.cc78d8",
+        "name": "Find Existing",
+        "collection": "controlm-jobs",
+        "operation": "find",
+        "x": 541.5,
+        "y": 333,
+        "wires": [
+            [
+                "2b770922.b9e716"
+            ]
+        ]
+    },
+    {
+        "id": "41fe4fab.80dd5",
+        "type": "function",
+        "z": "52d0814f.a62c2",
+        "name": "Find Original Exiting message",
+        "func": "msg.csv=msg.payload;\nvar ID=msg.payload.UNIQUE_ID;\nmsg.payload={_id: ID};\nmsg.limit=0;\nmsg.skip=0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 251.5,
+        "y": 324,
+        "wires": [
+            [
+                "eab51fea.454e2"
             ]
         ]
     }
