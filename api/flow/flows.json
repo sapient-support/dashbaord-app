@@ -122,8 +122,8 @@
         "upsert": true,
         "multi": false,
         "operation": "store",
-        "x": 509.5,
-        "y": 519,
+        "x": 576.5,
+        "y": 509,
         "wires": []
     },
     {
@@ -138,8 +138,8 @@
         "box": "JOBS",
         "disposition": "Delete",
         "repeat": "300000",
-        "x": 76,
-        "y": 77,
+        "x": 68,
+        "y": 63,
         "wires": [
             [
                 "140f6e7c.e69bc2"
@@ -680,19 +680,16 @@
         "type": "function",
         "z": "52d0814f.a62c2",
         "name": "Add MongoDB ID",
-        "func": "msg._id=msg.csv.UNIQUE_ID;\nif(typeof msg.csv.START_TIME!=\"undefined\" || typeof msg.csv.END_TIME!=\"undefined\" || typeof msg.csv.STATUS!=\"undefined\"){\n\tif(typeof msg.csv.START_TIME!=\"undefined\"){\n\t\tvar stringDate = msg.csv.START_TIME.trim();\n\t\tvar date = new Date(stringDate);\n\t\tvar utcDate= new Date();\n\t\tutcDate.setUTCDate(date.getDate());\n\t\tutcDate.setUTCHours(date.getHours());\n\t\tutcDate.setUTCMinutes(date.getMinutes());\n\t\tutcDate.setUTCMinutes(date.getMinutes());\n\t\tutcDate.setUTCSeconds(date.getSeconds());\n\t\tmsg.payload[0].START_TIME=utcDate;\n\t}\n\tif(typeof msg.csv.END_TIME!=\"undefined\"){\n\t\tvar stringDate = msg.csv.END_TIME.trim();\n\t\tvar date = new Date(stringDate);\n\t\tvar utcDate= new Date();\n\t\tutcDate.setUTCDate(date.getDate());\n\t\tutcDate.setUTCHours(date.getHours());\n\t\tutcDate.setUTCMinutes(date.getMinutes());\n\t\tutcDate.setUTCSeconds(date.getSeconds());\n\t\tmsg.payload[0].END_TIME=utcDate;\n\t}\n\tif(typeof msg.csv.STATUS!=\"undefined\"){\n\t\tmsg.payload[0].STATUS=msg.csv.STATUS;\n\t}\n\n\tif(typeof msg.csv.JOB_NAME!=\"undefined\"){\n\t\tmsg.payload[0].JOB_NAME=msg.csv.JOB_NAME;\n\t}\n\n\tif(typeof msg.csv.SERVER_NAME!=\"undefined\"){\n\t\tmsg.payload[0].SERVER_NAME=msg.csv.SERVER_NAME;\n\t}\n\n\tif(typeof msg.csv.REFERENCE_ID!=\"undefined\"){\n\t\tmsg.payload[0].REFERENCE_ID=msg.csv.REFERENCE_ID;\n\t}\n} else {\n    return [null,msg];\n}\nmsg.payload=msg.payload[0];\nreturn [msg,null];",
+        "func": "msg._id=msg.csv.UNIQUE_ID;\nvar message=msg.payload[0];\nif(typeof message==\"undefined\"){\n    message={};\n}\nif(typeof msg.csv.START_TIME!=\"undefined\"){\n\tvar stringDate = msg.csv.START_TIME.trim();\n\tvar date = new Date(stringDate);\n\tvar utcDate= new Date();\n\tutcDate.setUTCDate(date.getDate());\n\tutcDate.setUTCHours(date.getHours());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCSeconds(date.getSeconds());\n\tmessage.START_TIME=utcDate;\n}\nif(typeof msg.csv.END_TIME!=\"undefined\"){\n\tvar stringDate = msg.csv.END_TIME.trim();\n\tvar date = new Date(stringDate);\n\tvar utcDate= new Date();\n\tutcDate.setUTCDate(date.getDate());\n\tutcDate.setUTCHours(date.getHours());\n\tutcDate.setUTCMinutes(date.getMinutes());\n\tutcDate.setUTCSeconds(date.getSeconds());\n\tmessage.END_TIME=utcDate;\n}\nif(typeof msg.csv.STATUS!=\"undefined\"){\n\tmessage.STATUS=msg.csv.STATUS;\n}\n\nif(typeof msg.csv.JOB_NAME!=\"undefined\"){\n\tmessage.JOB_NAME=msg.csv.JOB_NAME;\n}\n\nif(typeof msg.csv.SERVER_NAME!=\"undefined\"){\n\tmessage.SERVER_NAME=msg.csv.SERVER_NAME;\n}\n\nif(typeof msg.csv.REFERENCE_ID!=\"undefined\"){\n\tmessage.REFERENCE_ID=msg.csv.REFERENCE_ID;\n}\nif(message==msg.payload[0]){\n\treturn [null,msg];\n}\nmsg.payload=message;\nreturn [msg,null];",
         "outputs": "2",
         "noerr": 0,
         "x": 192,
         "y": 507,
         "wires": [
             [
-                "4354705e.bd0f7",
                 "fb2eb20e.57851"
             ],
-            [
-                "59037dbb.f09b04"
-            ]
+            []
         ]
     },
     {
@@ -703,12 +700,11 @@
         "name": "Find Existing",
         "collection": "controlm-jobs",
         "operation": "find",
-        "x": 541.5,
-        "y": 333,
+        "x": 552.5,
+        "y": 320,
         "wires": [
             [
-                "2b770922.b9e716",
-                "1a447314.3784bd"
+                "2b770922.b9e716"
             ]
         ]
     },
@@ -717,98 +713,16 @@
         "type": "function",
         "z": "52d0814f.a62c2",
         "name": "Find Original Exiting message",
-        "func": "msg.csv=msg.payload;\nvar ID=msg.payload.UNIQUE_ID;\nmsg.payload={_id: ID};\nmsg.limit=0;\nmsg.skip=0;\nreturn msg;",
-        "outputs": 1,
+        "func": "msg.csv=msg.payload;\nif(typeof msg.csv.START_TIME!=\"undefined\" || typeof msg.csv.END_TIME!=\"undefined\" || typeof msg.csv.STATUS!=\"undefined\"){\n\tvar ID=msg.payload.UNIQUE_ID;\n\tmsg.payload={_id: ID};\n\tmsg.limit=0;\n\tmsg.skip=0;\n}else{\n\treturn [null,msg];\n}\nreturn [msg,null];",
+        "outputs": "2",
         "noerr": 0,
         "x": 251.5,
         "y": 324,
         "wires": [
             [
-                "eab51fea.454e2",
-                "768165b1.aab25c"
-            ]
+                "eab51fea.454e2"
+            ],
+            []
         ]
-    },
-    {
-        "id": "aa37408f.bdbad",
-        "type": "inject",
-        "z": "52d0814f.a62c2",
-        "name": "",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "x": 572,
-        "y": 157,
-        "wires": [
-            [
-                "e7f51e8d.9fa8a"
-            ]
-        ]
-    },
-    {
-        "id": "e7f51e8d.9fa8a",
-        "type": "file in",
-        "z": "52d0814f.a62c2",
-        "name": "File",
-        "filename": "C:/Users/aamol/Desktop/splunk/1.csv",
-        "format": "utf8",
-        "x": 755,
-        "y": 155,
-        "wires": [
-            [
-                "34c7346f.12521c"
-            ]
-        ]
-    },
-    {
-        "id": "768165b1.aab25c",
-        "type": "debug",
-        "z": "52d0814f.a62c2",
-        "name": "",
-        "active": false,
-        "console": "false",
-        "complete": "false",
-        "x": 745.5,
-        "y": 215,
-        "wires": []
-    },
-    {
-        "id": "1a447314.3784bd",
-        "type": "debug",
-        "z": "52d0814f.a62c2",
-        "name": "",
-        "active": false,
-        "console": "false",
-        "complete": "false",
-        "x": 729.5,
-        "y": 274,
-        "wires": []
-    },
-    {
-        "id": "4354705e.bd0f7",
-        "type": "debug",
-        "z": "52d0814f.a62c2",
-        "name": "MSG1",
-        "active": false,
-        "console": "false",
-        "complete": "payload",
-        "x": 506,
-        "y": 457,
-        "wires": []
-    },
-    {
-        "id": "59037dbb.f09b04",
-        "type": "debug",
-        "z": "52d0814f.a62c2",
-        "name": "MSG2",
-        "active": true,
-        "console": "false",
-        "complete": "payload",
-        "x": 434,
-        "y": 594,
-        "wires": []
     }
 ]
